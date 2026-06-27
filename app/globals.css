@@ -1,26 +1,101 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---- Brand theme (Tailwind v4) ----------------------------------------- */
+@theme {
+  --color-ink: #1a1a1a;
+  --color-cream: #fafaf7;
+  --color-card: #f0f0ee;
+  --color-line: #e5e5e5;
+  --color-muted: #555555;
+  --color-faint: #999999;
+  --color-orange: #ff6b35;
+  --color-flame: #ff4e00;
+  --color-ember: #ff8a3d;
+  --color-placeholder: #b0b0a8;
+
+  --font-sans: var(--font-geist), -apple-system, system-ui, sans-serif;
+  --font-serif: var(--font-bodoni), Georgia, serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: #ff6b35;
+    color: #fff;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---- Reusable brand gradients ------------------------------------------ */
+.grad {
+  background-image: linear-gradient(135deg, #ff8a3d, #ff4e00);
+}
+.grad-text {
+  background-image: linear-gradient(135deg, #ff8a3d, #ff4e00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ff4e00;
+}
+
+/* ---- Nav scrolled state (set via JS in Nav.tsx) ------------------------ */
+.nav-scrolled {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom-color: #e5e5e5;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+}
+
+/* ---- Scroll reveal -----------------------------------------------------
+   Resting state is visible (opacity:1, no transform), so content never stays
+   blank if JS doesn't run. `.armed` is the hidden start state applied by JS
+   on mount; removing it transitions to the visible resting state. */
+.reveal {
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.reveal.armed {
+  opacity: 0;
+  transform: translateY(24px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none;
+  }
+}
+
+/* ---- Ambient hero light — slow drifting warm glow ---------------------- */
+.ambient {
+  background:
+    radial-gradient(38% 48% at 22% 32%, rgba(255, 138, 61, 0.2), transparent 70%),
+    radial-gradient(44% 54% at 82% 24%, rgba(255, 78, 0, 0.13), transparent 70%),
+    radial-gradient(52% 60% at 64% 82%, rgba(255, 107, 53, 0.16), transparent 70%);
+  filter: blur(28px);
+  will-change: transform;
+  animation: drift 24s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(3%, 2%, 0) scale(1.16);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ambient {
+    animation: none;
+  }
+}
+
+/* ---- Hero legibility mask for the ambient video ------------------------ */
+.hero-video {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 26%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 26%);
 }
