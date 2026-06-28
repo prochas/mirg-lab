@@ -60,6 +60,20 @@ body::after {
   will-change: transform;
 }
 
+/* ---- Kinetic headline: one random letter flips, controlled via JS ---- */
+@keyframes kineticFlip {
+  0%   { transform: perspective(500px) rotateY(0deg); }
+  100% { transform: perspective(500px) rotateY(360deg); }
+}
+
+.kinetic-letter {
+  display: inline-block;
+}
+
+.kinetic-letter-active {
+  animation: kineticFlip 1s ease-in-out;
+}
+
 /* ---- Hero: letters roll up from a clipped container (CSS only) ---- */
 @keyframes rollUp {
   from {

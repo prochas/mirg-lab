@@ -1,26 +1,20 @@
 // Horizontal category slider.
-// On hover: image scales up + tilts -2deg, an accent-tinted overlay
-// fades in, and a "+" badge pops in — all via Tailwind `group-hover`.
+// On hover: image scales up + tilts -2deg, and a "+" badge pops in —
+// all via Tailwind `group-hover`.
 // The track scrolls natively (swipe / trackpad / scroll), so it needs
 // no JS arrow buttons.
 
 type Cat = {
   title: string;
   meta: string;
-  img: string; // replace with your own image in /public
-  badge?: string;
+  img: string;
 };
 
 const categories: Cat[] = [
-  { title: "Rings", meta: "24 pieces", img: "/categories/rings.jpg" },
-  { title: "Signets", meta: "12 pieces", img: "/categories/signets.jpg" },
-  {
-    title: "Pendants",
-    meta: "Just dropped",
-    img: "/categories/pendants.jpg",
-    badge: "New",
-  },
-  { title: "Stacks", meta: "18 pieces", img: "/categories/stacks.jpg" },
+  { title: "Žiedai", meta: "Ranka darbo", img: "/category/rings.avif" },
+  { title: "Grandinėlės", meta: "Ranka darbo", img: "/category/chains.avif" },
+  { title: "Apyrankės", meta: "Ranka darbo", img: "/category/bracelets.avif" },
+  { title: "Auskarai", meta: "Ranka darbo", img: "/category/earrings.avif" },
 ];
 
 export default function Categories() {
@@ -51,17 +45,6 @@ export default function Categories() {
                 alt={c.title}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[550ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07] group-hover:-rotate-2"
               />
-              {/* accent overlay */}
-              <div className="absolute inset-0 bg-[#ff4d3d]/25 opacity-0 transition-opacity duration-[400ms] group-hover:opacity-100" />
-              {/* + badge */}
-              <div className="absolute right-3.5 top-3.5 flex h-[46px] w-[46px] scale-[0.4] items-center justify-center rounded-full bg-white pb-1 font-[family-name:var(--font-anton)] text-[30px] leading-none opacity-0 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-100 group-hover:opacity-100">
-                +
-              </div>
-              {c.badge && (
-                <div className="absolute left-3.5 top-3.5 rounded-lg bg-[#ff4d3d] px-[11px] py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white">
-                  {c.badge}
-                </div>
-              )}
             </div>
             <div className="mt-4 flex items-baseline justify-between gap-2.5">
               <div className="font-[family-name:var(--font-anton)] uppercase leading-none text-[clamp(1.3rem,2.4vw,1.7rem)] text-[#111]">
@@ -79,9 +62,6 @@ export default function Categories() {
         >
           <div className="relative flex aspect-[5/6] items-end overflow-hidden rounded-[22px] bg-[#111] p-6 text-white">
             <div className="absolute inset-0 bg-[#ff4d3d]/25 opacity-0 transition-opacity duration-[400ms] group-hover:opacity-100" />
-            <div className="absolute right-3.5 top-3.5 flex h-[46px] w-[46px] scale-[0.4] items-center justify-center rounded-full bg-white pb-1 font-[family-name:var(--font-anton)] text-[30px] leading-none text-[#111] opacity-0 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-100 group-hover:opacity-100">
-              +
-            </div>
             <div className="relative z-[2]">
               <div className="font-[family-name:var(--font-anton)] uppercase leading-[0.95] text-[clamp(1.6rem,3vw,2.2rem)]">
                 Made

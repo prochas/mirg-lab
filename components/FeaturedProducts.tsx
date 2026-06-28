@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import ScrollReveal from "./ScrollReveal";
 
@@ -6,15 +6,34 @@ type Product = {
   title: string;
   price: string;
   front: string;
-  back: string;
-  badge?: string;
+  hover: string;
 };
 
 const products: Product[] = [
-  { title: "Signet No.1", price: "$180", front: "/products/signet-a.jpg", back: "/products/signet-b.jpg" },
-  { title: "Twist Band", price: "$145", front: "/products/twist-a.jpg", back: "/products/twist-b.jpg" },
-  { title: "Raw Pendant", price: "$210", front: "/products/raw-a.jpg", back: "/products/raw-b.jpg", badge: "New" },
-  { title: "Stack Trio", price: "$260", front: "/products/stack-a.jpg", back: "/products/stack-b.jpg" },
+  {
+    title: "Žiedas Nr. 1",
+    price: "180 €",
+    front: "/new-offers/ring_one.avif",
+    hover: "/new-offers/ring_one_hover.avif",
+  },
+  {
+    title: "Žiedas Nr. 2",
+    price: "145 €",
+    front: "/new-offers/ring_two.avif",
+    hover: "/new-offers/ring_two_hover.avif",
+  },
+  {
+    title: "Žiedas Nr. 3",
+    price: "210 €",
+    front: "/new-offers/ring_three.avif",
+    hover: "/new-offers/ring_three_hover.avif",
+  },
+  {
+    title: "Žiedas Nr. 4",
+    price: "260 €",
+    front: "/new-offers/ring_four.avif",
+    hover: "/new-offers/ring_four_hover.avif",
+  },
 ];
 
 export default function FeaturedProducts() {
@@ -32,35 +51,39 @@ export default function FeaturedProducts() {
         </h2>
       </ScrollReveal>
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-[clamp(16px,2vw,28px)]">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-[clamp(16px,2vw,28px)]">
         {products.map((p, i) => (
           <ScrollReveal key={p.title} delay={i * 80}>
             <a href="#" className="group block no-underline">
-              <div className="relative aspect-square overflow-hidden rounded-[22px] bg-[#e9e7df]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.front}
-                  alt={p.title}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.back}
-                  alt=""
-                  aria-hidden
-                  className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                />
-                {p.badge && (
-                  <div className="absolute left-3.5 top-3.5 rounded-lg bg-[#ff4d3d] px-[11px] py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white">
-                    {p.badge}
-                  </div>
-                )}
+              <div className="relative aspect-[5/6] overflow-hidden rounded-[22px] bg-[#e9e7df]">
+                {/* zoom wrapper — both images scale together */}
+                <div className="absolute inset-0 transition-transform duration-[550ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07] group-hover:-rotate-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.front}
+                    alt={p.title}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.hover}
+                    alt=""
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  />
+                </div>
+                {/* + badge */}
+                <div className="absolute right-3.5 top-3.5 flex h-[46px] w-[46px] scale-[0.4] items-center justify-center rounded-full bg-white pb-1 font-[family-name:var(--font-anton)] text-[30px] leading-none opacity-0 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-100 group-hover:opacity-100">
+                  +
+                </div>
               </div>
               <div className="mt-[15px] flex items-baseline justify-between gap-2.5">
                 <div className="font-[family-name:var(--font-anton)] uppercase tracking-[0.01em] text-[1.05rem] text-[#111]">
                   {p.title}
                 </div>
-                <div className="text-[15px] font-medium text-[#111]">{p.price}</div>
+                <div className="text-[15px] font-medium text-[#111]">
+                  {p.price}
+                </div>
               </div>
             </a>
           </ScrollReveal>
