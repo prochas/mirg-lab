@@ -11,9 +11,12 @@ export default function Hero() {
           muted
           loop
           playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-25"
+          className="absolute inset-0 h-full w-full object-cover opacity-45"
         >
-          {/* <source src="/hero.mp4" type="video/mp4" /> */}
+          <source
+            src="https://fh42ib0vlppqewfz.private.blob.vercel-storage.com/hero-bg.webm?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfZkg0MklCMFZscHBRZXdmeiIsIm93bmVySWQiOiJ0ZWFtX2w4ZW1FMVNJVnlzamtmMklFdTJGQjNyMyIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzgyNzIwMDcyOTEzLCJpYXQiOjE3ODI2NzY4NzI0ODJ9.IWbWM-mpli6oeJSX5EUjp732aeGWpjweOBRWID6HyKw&vercel-blob-signature=jvIO3lN1Sbqp2mQSx9ynEUBNpGXWS-Do9IBeFUviFHs"
+            type="video/webm"
+          />
         </video>
 
         {/* Subtle overlay keeps text readable regardless of video brightness */}
