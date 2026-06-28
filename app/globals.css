@@ -1,101 +1,162 @@
 @import "tailwindcss";
 
-/* ---- Brand theme (Tailwind v4) ----------------------------------------- */
-@theme {
-  --color-ink: #1a1a1a;
-  --color-cream: #fafaf7;
-  --color-card: #f0f0ee;
-  --color-line: #e5e5e5;
-  --color-muted: #555555;
-  --color-faint: #999999;
-  --color-orange: #ff6b35;
-  --color-flame: #ff4e00;
-  --color-ember: #ff8a3d;
-  --color-placeholder: #b0b0a8;
+/*
+  mirga.lab — global styles
+  Works with Tailwind v4 (the `@import "tailwindcss";` line above).
+  If you're on Tailwind v3, replace that line with:
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+*/
 
-  --font-sans: var(--font-geist), -apple-system, system-ui, sans-serif;
-  --font-serif: var(--font-bodoni), Georgia, serif;
+:root {
+  --bg: #f7f6f2;
+  --ink: #111111;
+  --accent: #ff4d3d;
 }
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
-  body {
-    -webkit-font-smoothing: antialiased;
-  }
-  ::selection {
-    background: #ff6b35;
-    color: #fff;
-  }
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
-/* ---- Reusable brand gradients ------------------------------------------ */
-.grad {
-  background-image: linear-gradient(135deg, #ff8a3d, #ff4e00);
-}
-.grad-text {
-  background-image: linear-gradient(135deg, #ff8a3d, #ff4e00);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ff4e00;
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* ---- Nav scrolled state (set via JS in Nav.tsx) ------------------------ */
-.nav-scrolled {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: saturate(180%) blur(12px);
-  -webkit-backdrop-filter: saturate(180%) blur(12px);
-  border-bottom-color: #e5e5e5;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+::selection {
+  background: var(--accent);
+  color: #fff;
 }
 
-/* ---- Scroll reveal -----------------------------------------------------
-   Resting state is visible (opacity:1, no transform), so content never stays
-   blank if JS doesn't run. `.armed` is the hidden start state applied by JS
-   on mount; removing it transitions to the visible resting state. */
-.reveal {
-  transition:
-    opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
-    transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.reveal.armed {
-  opacity: 0;
-  transform: translateY(24px);
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    transition: none;
-  }
+/* hide horizontal scrollbar on the category slider */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* ---- Ambient hero light — slow drifting warm glow ---------------------- */
-.ambient {
-  background:
-    radial-gradient(38% 48% at 22% 32%, rgba(255, 138, 61, 0.2), transparent 70%),
-    radial-gradient(44% 54% at 82% 24%, rgba(255, 78, 0, 0.13), transparent 70%),
-    radial-gradient(52% 60% at 64% 82%, rgba(255, 107, 53, 0.16), transparent 70%);
-  filter: blur(28px);
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  height: 0;
+}
+
+
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  /* oversized so edge seams never show */
+  width: 120%;
+  height: 120%;
+  background-image: url("/noise.png");
+  background-size: 200px 200px;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+  animation: noise 0.18s steps(1) infinite;
   will-change: transform;
-  animation: drift 24s ease-in-out infinite alternate;
 }
-@keyframes drift {
-  0% {
-    transform: translate3d(-2%, -1%, 0) scale(1.06);
+
+/* ---- Hero: letters roll up from a clipped container (CSS only) ---- */
+@keyframes rollUp {
+  from {
+    transform: translateY(110%);
   }
-  100% {
-    transform: translate3d(3%, 2%, 0) scale(1.16);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ambient {
-    animation: none;
+
+  to {
+    transform: translateY(0);
   }
 }
 
-/* ---- Hero legibility mask for the ambient video ------------------------ */
-.hero-video {
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 26%);
-  mask-image: linear-gradient(to right, transparent 0%, #000 26%);
+/* ---- Dark section: per-letter reveal, driven by scroll position ----
+   Pure CSS via scroll-driven animations. Falls back to fully-visible
+   text in browsers without `animation-timeline` support.            */
+@keyframes letterIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .quote-letter {
+    opacity: 0;
+    animation: letterIn linear both;
+    animation-timeline: view();
+    /* per-letter animation-range is set inline for the stagger */
+  }
+}
+
+.noise {
+  z-index: -1;
+  pointer-events: none;
+  background: url(/noise.png) 50%;
+  width: calc(100% + 20rem);
+  height: calc(100% + 20rem);
+  position: fixed;
+  top: -10rem;
+  left: -10rem;
+  transform: translateZ(0);
+}
+
+.noise {
+  animation: 5s steps(5, end) infinite noise;
+}
+
+@keyframes noise {
+  0% {
+    transform: translateY(9rem);
+  }
+
+  10% {
+    transform: translate(-1rem, -4rem);
+  }
+
+  20% {
+    transform: translate(-8rem, 2rem);
+  }
+
+  30% {
+    transform: translate(9rem, -9rem);
+  }
+
+  40% {
+    transform: translate(-2rem, 7rem);
+  }
+
+  50% {
+    transform: translate(-9rem, -4rem);
+  }
+
+  60% {
+    transform: translate(2rem, 6rem);
+  }
+
+  70% {
+    transform: translate(7rem, -8rem);
+  }
+
+  80% {
+    transform: translate(-9rem, 1rem);
+  }
+
+  90% {
+    transform: translate(6rem, -5rem);
+  }
+
+  100% {
+    transform: translate(-7rem);
+  }
+}
+
+#noise-logo svg {
+  stroke: color-mix(in oklab, var(--ink) 5%, transparent);
 }

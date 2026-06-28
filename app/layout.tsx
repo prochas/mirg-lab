@@ -1,29 +1,27 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Geist } from "next/font/google";
-import { CartProvider } from "@/components/CartProvider";
+import { Anton, Epilogue } from "next/font/google";
 import "./globals.css";
+import LenisProvider from "@/components/LenisProvider";
 
-// Self-hosted + automatically preloaded by Next — no render-blocking Google
-// Fonts request, which keeps the hero <h1> (the LCP element) painting fast.
-const geist = Geist({
+// Display font — heavy, ALL CAPS headings
+const anton = Anton({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-geist",
+  weight: "400",
+  variable: "--font-anton",
   display: "swap",
 });
 
-const bodoni = Bodoni_Moda({
+// Body font — clean light sans
+const epilogue = Epilogue({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-bodoni",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-epilogue",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "mirga.lab — Rings, reimagined",
-  description:
-    "Modern fine jewellery, designed in our atelier and made to be worn every single day.",
+  title: "mirga.lab — Handmade rings & pendants",
+  description: "Solid metal rings and pendants, made by hand in small batches.",
 };
 
 export default function RootLayout({
@@ -32,9 +30,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geist.variable} ${bodoni.variable}`}>
-      <body className="bg-white font-sans text-ink antialiased">
-        <CartProvider>{children}</CartProvider>
+    <html lang="en" className={`${anton.variable} ${epilogue.variable}`}>
+      <body
+        id="top"
+        className="bg-background font-sans antialiased transition-colors duration-1000 selection:bg-pink-600 selection:text-white page-light"
+      >
+        <LenisProvider>{children}</LenisProvider>
       </body>
     </html>
   );
