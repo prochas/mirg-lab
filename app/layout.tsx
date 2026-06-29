@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="en" className={`${anton.variable} ${epilogue.variable}`}>
       <body
         id="top"
-        className="bg-background font-sans antialiased transition-colors duration-1000 selection:bg-pink-600 selection:text-white page-light"
+        className="bg-background font-sans antialiased transition-colors duration-1000 selection:bg-pink-600 selection:text-white"
       >
         <LenisProvider>{children}</LenisProvider>
       </body>

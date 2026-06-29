@@ -47,7 +47,7 @@ export default function Philosophy() {
   return (
     <section
       id="story"
-      className="mx-[clamp(12px,2vw,28px)] my-[clamp(20px,3vw,40px)] overflow-hidden rounded-[clamp(28px,4vw,48px)] bg-black text-white"
+      className="relative mx-[clamp(12px,2vw,28px)] my-[clamp(20px,3vw,40px)] overflow-hidden rounded-[clamp(28px,4vw,48px)] bg-black text-white"
     >
       <div className="px-[clamp(20px,5vw,80px)] pt-[clamp(64px,10vw,140px)] pb-[clamp(48px,7vw,96px)]">
         <ScrollReveal className="mb-[clamp(24px,4vw,44px)] text-center text-[13px] font-semibold tracking-[0.12em] text-[#ff4d3d]">
