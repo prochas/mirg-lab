@@ -78,14 +78,6 @@ export default function Footer() {
           </a>
         </div>
       </div>
-
-      {/* Giant faint wordmark */}
-      {/* <div
-        aria-hidden
-        className="pointer-events-none relative z-[1] -mb-[0.12em] mt-[clamp(10px,2vw,30px)] whitespace-nowrap font-[family-name:var(--font-anton)] uppercase leading-[0.8] tracking-[-0.01em] opacity-[0.18] text-[clamp(4rem,21vw,17rem)] bg-[linear-gradient(135deg,#FFA64D_0%,#FF6B2C_52%,#F0480D_100%)] bg-clip-text text-transparent"
-      >
-        mirga.lab
-      </div> */}
     </footer>
   );
 }

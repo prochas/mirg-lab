@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import Categories from "@/components/Categories";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import Philosophy from "@/components/Philosophy";
+import Contacts from "@/components/Contacts";
 import Footer from "@/components/Footer";
 
 // Fully static, server-rendered. No client JavaScript anywhere.
@@ -33,6 +34,7 @@ export default function Home() {
         <Categories />
         <FeaturedProducts />
         <Philosophy />
+        <Contacts />
       </main>
       <Footer />
     </>
