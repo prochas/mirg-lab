@@ -18,18 +18,36 @@ const IMAGES = [
   "/bg-hero/twelve.jpg",
 ];
 
+// Render twice so the loop point is invisible: we translate 0 → -50% (one full set)
+const STRIP = [...IMAGES, ...IMAGES];
+
 export default function HeroStrip() {
   const stripRef = useRef<HTMLDivElement>(null);
+  const halfWidthRef = useRef(0);
 
   useEffect(() => {
-    const onScroll = (e: Event) => {
-      const scroll = (e as CustomEvent<number>).detail
+    const measure = () => {
       if (stripRef.current) {
-        stripRef.current.style.transform = `translateX(-${scroll * 0.4}px)`
+        halfWidthRef.current = stripRef.current.scrollWidth / 2;
       }
-    }
-    window.addEventListener('smooth-scroll', onScroll)
-    return () => window.removeEventListener('smooth-scroll', onScroll)
+    };
+    measure();
+    window.addEventListener("resize", measure);
+
+    const onScroll = (e: Event) => {
+      const scroll = (e as CustomEvent<number>).detail;
+      const half = halfWidthRef.current;
+      if (!stripRef.current || half === 0) return;
+      // Modulo keeps the translation within [0, halfWidth) — seamless loop
+      const x = (scroll * 0.45) % half;
+      stripRef.current.style.transform = `translateX(-${x}px)`;
+    };
+
+    window.addEventListener("smooth-scroll", onScroll);
+    return () => {
+      window.removeEventListener("smooth-scroll", onScroll);
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   return (
@@ -37,9 +55,9 @@ export default function HeroStrip() {
       className="mt-[clamp(48px,7vw,88px)] overflow-hidden"
       style={{
         maskImage:
-          "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+          "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
         WebkitMaskImage:
-          "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
+          "linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%)",
       }}
     >
       <div
@@ -47,7 +65,7 @@ export default function HeroStrip() {
         className="flex gap-[clamp(8px,1vw,12px)] will-change-transform"
         style={{ width: "max-content" }}
       >
-        {IMAGES.map((src, i) => (
+        {STRIP.map((src, i) => (
           <div
             key={i}
             className="relative flex-shrink-0 overflow-hidden"

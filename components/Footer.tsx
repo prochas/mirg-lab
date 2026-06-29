@@ -14,7 +14,7 @@ const payments = ["VISA", "MASTERCARD", "AMEX", "PAYPAL"];
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden px-[clamp(18px,4vw,56px)] pt-[clamp(56px,8vw,110px)]">
+    <footer className="relative overflow-hidden border-t border-[#111]/10 px-[clamp(18px,4vw,56px)] pt-[clamp(56px,8vw,110px)]">
       {/* Columns */}
       <div className="relative z-[2] mx-auto grid max-w-[1320px] grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-[clamp(28px,4vw,56px)]">
         <div className="col-span-full max-w-[520px]">

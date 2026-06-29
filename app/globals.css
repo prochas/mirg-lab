@@ -85,29 +85,6 @@ body::after {
   }
 }
 
-/* ---- Dark section: per-letter reveal, driven by scroll position ----
-   Pure CSS via scroll-driven animations. Falls back to fully-visible
-   text in browsers without `animation-timeline` support.            */
-@keyframes letterIn {
-  from {
-    opacity: 0;
-    transform: translateY(0.45em);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@supports (animation-timeline: view()) {
-  .quote-letter {
-    opacity: 0;
-    animation: letterIn linear both;
-    animation-timeline: view();
-    /* per-letter animation-range is set inline for the stagger */
-  }
-}
 
 .noise {
   z-index: -1;
@@ -169,6 +146,10 @@ body::after {
   100% {
     transform: translate(-7rem);
   }
+}
+
+#noise-logo {
+  transition: opacity 0.7s ease;
 }
 
 #noise-logo svg {

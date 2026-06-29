@@ -5,6 +5,7 @@ import FeaturedProducts from "@/components/FeaturedProducts";
 import Philosophy from "@/components/Philosophy";
 import Contacts from "@/components/Contacts";
 import Footer from "@/components/Footer";
+import NoiseLogoController from "@/components/NoiseLogoController";
 
 // Fully static, server-rendered. No client JavaScript anywhere.
 export default function Home() {
@@ -28,6 +29,7 @@ export default function Home() {
           ></path>
         </svg>
       </div>
+      <NoiseLogoController />
       <Navbar />
       <main className="relative min-h-screen">
         <Hero />
