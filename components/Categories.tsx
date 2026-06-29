@@ -1,8 +1,3 @@
-// Horizontal category slider.
-// On hover: image scales up + tilts -2deg, and a "+" badge pops in —
-// all via Tailwind `group-hover`.
-// The track scrolls natively (swipe / trackpad / scroll), so it needs
-// no JS arrow buttons.
 
 type Cat = {
   title: string;

@@ -1,4 +1,3 @@
-'use client'
 
 import QuoteReveal from "./QuoteReveal";
 import ScrollReveal from "./ScrollReveal";

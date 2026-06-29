@@ -1,6 +1,3 @@
-// Footer — giant faint wordmark behind the content, link columns,
-// payment badges, and a playful credit micro-interaction (CSS hover).
-
 const columns = [
   { title: "Shop", links: ["Rings", "Pendants", "Stacks", "Gift cards"] },
   {

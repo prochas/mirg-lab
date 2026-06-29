@@ -14,7 +14,7 @@ export default function Hero() {
           className="absolute inset-0 h-full w-full object-cover opacity-45"
         >
           <source
-            src="https://fh42ib0vlppqewfz.private.blob.vercel-storage.com/hero-bg.webm?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfZkg0MklCMFZscHBRZXdmeiIsIm93bmVySWQiOiJ0ZWFtX2w4ZW1FMVNJVnlzamtmMklFdTJGQjNyMyIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzgyNzIwMDcyOTEzLCJpYXQiOjE3ODI2NzY4NzI0ODJ9.IWbWM-mpli6oeJSX5EUjp732aeGWpjweOBRWID6HyKw&vercel-blob-signature=jvIO3lN1Sbqp2mQSx9ynEUBNpGXWS-Do9IBeFUviFHs"
+            src="https://fh42ib0vlppqewfz.private.blob.vercel-storage.com/hero-bg.webm?vercel-blob-delegation=eyJzdG9yZUlkIjoic3RvcmVfZkg0MklCMFZscHBRZXdmeiIsIm93bmVySWQiOiJ0ZWFtX2w4ZW1FMVNJVnlzamtmMklFdTJGQjNyMyIsInBhdGhuYW1lIjoiKiIsIm9wZXJhdGlvbnMiOlsiZ2V0IiwiaGVhZCJdLCJ2YWxpZFVudGlsIjoxNzgyNzY0NTU2NjUzLCJpYXQiOjE3ODI3MjEzNTcyMzd9.g6Zp2RU8O9Ne0JNzsAg2J5Ij-dpDt-IE0QdkGqmqXpg&vercel-blob-signature=MPshdGxxGhMDyuSSfGeFTmC7Bafh-eOJsxq7VaG0DEc"
             type="video/webm"
           />
         </video>
