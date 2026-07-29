@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Anton, Epilogue } from "next/font/google";
 import "./globals.css";
 import LenisProvider from "@/components/LenisProvider";
+import CartUIProvider from "@/components/cart/CartUIProvider";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 // Display font — heavy, ALL CAPS headings
 const anton = Anton({
@@ -35,7 +37,12 @@ export default function RootLayout({
         id="top"
         className="bg-background font-sans antialiased transition-colors duration-1000 selection:bg-pink-600 selection:text-white"
       >
-        <LenisProvider>{children}</LenisProvider>
+        <LenisProvider>
+          <CartUIProvider>
+            {children}
+            <CartDrawer />
+          </CartUIProvider>
+        </LenisProvider>
       </body>
     </html>
   );

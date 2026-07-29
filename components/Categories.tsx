@@ -3,13 +3,34 @@ type Cat = {
   title: string;
   meta: string;
   img: string;
+  href: string;
 };
 
 const categories: Cat[] = [
-  { title: "Žiedai", meta: "Ranka darbo", img: "/category/rings.avif" },
-  { title: "Grandinėlės", meta: "Ranka darbo", img: "/category/chains.avif" },
-  { title: "Apyrankės", meta: "Ranka darbo", img: "/category/bracelets.avif" },
-  { title: "Auskarai", meta: "Ranka darbo", img: "/category/earrings.avif" },
+  {
+    title: "Žiedai",
+    meta: "Ranka darbo",
+    img: "/category/rings.avif",
+    href: "/products/rings",
+  },
+  {
+    title: "Grandinėlės",
+    meta: "Ranka darbo",
+    img: "/category/chains.avif",
+    href: "#featured",
+  },
+  {
+    title: "Apyrankės",
+    meta: "Ranka darbo",
+    img: "/category/bracelets.avif",
+    href: "#featured",
+  },
+  {
+    title: "Auskarai",
+    meta: "Ranka darbo",
+    img: "/category/earrings.avif",
+    href: "#featured",
+  },
 ];
 
 export default function Categories() {
@@ -30,7 +51,7 @@ export default function Categories() {
         {categories.map((c) => (
           <a
             key={c.title}
-            href="#featured"
+            href={c.href}
             className="group w-[clamp(230px,27vw,310px)] flex-none snap-start no-underline"
           >
             <div className="relative aspect-[5/6] overflow-hidden rounded-[22px] bg-[#e9e7df]">
