@@ -12,6 +12,14 @@
       "title": "Žiedai — mirga.lab",
       "description": "Rankų darbo žiedai, gaminami mažomis partijomis."
     },
+    "contacts": {
+      "title": "Kontaktai — mirga.lab",
+      "description": "Parašykite mums arba užsukite į dirbtuvę Vilniaus senamiestyje."
+    },
+    "faq": {
+      "title": "D.U.K. — mirga.lab",
+      "description": "Atsakymai apie dydžius, gaminimo laiką, pristatymą, priežiūrą ir grąžinimą."
+    },
     "product": {
       "title": "{title} — mirga.lab"
     }
@@ -31,12 +39,14 @@
 
   "nav": {
     "menuLabel": "Pagrindinis meniu",
-    "shop": "Parduotuvė",
-    "newIn": "Naujienos",
     "story": "Istorija",
+    "faq": "D.U.K.",
+    "contacts": "Kontaktai",
     "jewelry": "Papuošalai",
     "soon": "Netrukus",
     "search": "Paieška",
+    "openMenu": "Atidaryti meniu",
+    "closeMenu": "Uždaryti meniu",
     "cart": "Krepšelis ({count})",
     "categories": {
       "rings": "Žiedai",
@@ -157,6 +167,23 @@
       "suffix": "."
     },
     "top": "Į viršų ↑"
+  },
+
+  "contactsPage": {
+    "breadcrumbHome": "Pradžia",
+    "title": "Kontaktai",
+    "intro": "Rašykite dėl užsakymo, dydžio ar individualaus projekto. Atsakome per vieną darbo dieną."
+  },
+
+  "faqPage": {
+    "breadcrumbHome": "Pradžia",
+    "title": "D.U.K.",
+    "intro": "Dažniausiai užduodami klausimai apie dydžius, gaminimo laiką, medžiagas, pristatymą ir grąžinimą.",
+    "cta": {
+      "title": "Neradote atsakymo?",
+      "body": "Parašykite — atsakome per vieną darbo dieną. Geriau paklausti prieš užsakant, nei spėlioti dėl dydžio.",
+      "button": "Susisiekti"
+    }
   },
 
   "catalog": {

@@ -9,14 +9,17 @@ import { useId, useState } from "react";
  * The open/close animation uses `grid-template-rows: 0fr -> 1fr` rather than
  * max-height: it eases to the content's real height, so nothing is clipped and
  * there's no dead time from an over-estimated max-height.
+ *
+ * Two content shapes: `items` for a bulleted list (product specs, delivery
+ * terms) and `body` for a single prose answer (the FAQ). The union keeps them
+ * mutually exclusive, so a caller can't pass both and silently lose one.
  */
-export default function Accordion({
-  title,
-  items,
-}: {
-  title: string;
-  items: string[];
-}) {
+type AccordionProps = { title: string } & (
+  | { items: string[]; body?: never }
+  | { body: string; items?: never }
+);
+
+export default function Accordion({ title, items, body }: AccordionProps) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
 
@@ -49,21 +52,31 @@ export default function Accordion({
       >
         {/* The overflow-hidden wrapper is what the collapsing row clips. */}
         <div className="overflow-hidden">
-          <ul
-            className={`flex list-none flex-col gap-2 pb-5 pl-0 transition-opacity duration-300 ${
-              open ? "opacity-100 delay-100" : "opacity-0"
-            }`}
-          >
-            {items.map((item) => (
-              <li
-                key={item}
-                className="flex gap-2.5 text-[14px] leading-[1.5] text-[#3a3a38]"
-              >
-                <span className="mt-[9px] h-[4px] w-[4px] flex-none rounded-full bg-[#7a7a76]" />
-                {item}
-              </li>
-            ))}
-          </ul>
+          {body ? (
+            <p
+              className={`m-0 max-w-[68ch] pb-5 text-[14px] leading-[1.6] text-[#3a3a38] transition-opacity duration-300 ${
+                open ? "opacity-100 delay-100" : "opacity-0"
+              }`}
+            >
+              {body}
+            </p>
+          ) : (
+            <ul
+              className={`flex list-none flex-col gap-2 pb-5 pl-0 transition-opacity duration-300 ${
+                open ? "opacity-100 delay-100" : "opacity-0"
+              }`}
+            >
+              {items?.map((item) => (
+                <li
+                  key={item}
+                  className="flex gap-2.5 text-[14px] leading-[1.5] text-[#3a3a38]"
+                >
+                  <span className="mt-[9px] h-[4px] w-[4px] flex-none rounded-full bg-[#7a7a76]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

@@ -61,7 +61,7 @@ export default function CartDrawer() {
         aria-label={t("dialogLabel")}
         /* The shadow is applied only while open. Parked off-screen it would
            still cast 60px of blur back across the viewport's right edge. */
-        className={`fixed right-0 top-0 z-[1600] flex h-dvh w-full max-w-[92vw] flex-col bg-[#f7f6f2] transition-[transform,box-shadow] duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)] sm:w-[440px] ${
+        className={`fixed right-0 top-0 z-[1600] flex h-dvh w-full max-w-[92vw] flex-col bg-[#fdfdfd] transition-[transform,box-shadow] duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)] sm:w-[440px] ${
           open
             ? "translate-x-0 shadow-[-24px_0_60px_rgba(0,0,0,0.25)]"
             : "translate-x-full shadow-none"
@@ -242,7 +242,7 @@ export default function CartDrawer() {
             </div>
 
             {/* ── Footer ── */}
-            <div className="flex-none border-t border-[#111]/10 bg-[#f7f6f2] px-[clamp(18px,4vw,26px)] py-5">
+            <div className="flex-none border-t border-[#111]/10 bg-[#fdfdfd] px-[clamp(18px,4vw,26px)] py-5">
               <div className="flex items-center justify-between text-[14px] text-[#3a3a38]">
                 <span>{t("subtotal")}</span>
                 <span>{formatPrice(subtotal, locale)}</span>

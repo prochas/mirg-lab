@@ -12,6 +12,14 @@
       "title": "Rings — mirga.lab",
       "description": "Handmade rings, made in small batches."
     },
+    "contacts": {
+      "title": "Contact — mirga.lab",
+      "description": "Write to us, or visit the studio in Vilnius old town."
+    },
+    "faq": {
+      "title": "FAQ — mirga.lab",
+      "description": "Answers on sizing, making times, delivery, care and returns."
+    },
     "product": {
       "title": "{title} — mirga.lab"
     }
@@ -31,12 +39,14 @@
 
   "nav": {
     "menuLabel": "Main menu",
-    "shop": "Shop",
-    "newIn": "New In",
     "story": "Story",
+    "faq": "FAQ",
+    "contacts": "Contact",
     "jewelry": "Jewellery",
     "soon": "Coming soon",
     "search": "Search",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "cart": "Cart ({count})",
     "categories": {
       "rings": "Rings",
@@ -157,6 +167,23 @@
       "suffix": "."
     },
     "top": "Top ↑"
+  },
+
+  "contactsPage": {
+    "breadcrumbHome": "Home",
+    "title": "Contact",
+    "intro": "Write to us about an order, a size or a custom project. We reply within one business day."
+  },
+
+  "faqPage": {
+    "breadcrumbHome": "Home",
+    "title": "FAQ",
+    "intro": "The questions we get asked most — about sizing, making times, materials, delivery and returns.",
+    "cta": {
+      "title": "Didn't find your answer?",
+      "body": "Write to us — we reply within one business day. Better to ask before ordering than to guess at a size.",
+      "button": "Get in touch"
+    }
   },
 
   "catalog": {

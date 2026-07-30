@@ -178,6 +178,8 @@ app/
     layout.tsx                 # root layout: <html lang>, fonts, providers
     page.tsx                   # home
     about/page.tsx
+    contacts/page.tsx          # standalone page around <Contacts showEyebrow={false} />
+    faq/page.tsx               # grouped accordions + FAQPage JSON-LD
     products/rings/page.tsx    # catalog
     products/[slug]/page.tsx   # product page (size selection + fulfillment msg)
     cart/page.tsx              # (planned — the drawer covers it for now)
@@ -200,6 +202,8 @@ proxy.ts                       # next-intl routing middleware (Next 16 conventio
 lib/
   rings.ts                     # mock catalog, Localized<T> + getRings(locale)
   about.ts                     # about-page content, same pattern
+  faq.ts                       # grouped Q&A, same pattern — getFaqGroups(locale)
+  nav.ts                       # nav link structure, shared by Navbar + MobileMenu
   cart.ts                      # mock cart lines + resolveCart(lines, locale, t)
   fulfillment.ts               # getFulfillment() — the shared business logic
   format.ts                    # formatPrice(amount, locale)
@@ -294,7 +298,10 @@ stripe trigger checkout.session.completed   # send a test event
 - [ ] Resend domain verification (sender: uzsakymai@mirga.lab)
 - [ ] Sanity → revalidateTag webhook for instant content updates
 - [ ] Legal pages (terms, privacy, returns — note the made-to-order/custom-goods
-      exception to the EU 14-day withdrawal right; verify with VVTAT guidance)
+      exception to the EU 14-day withdrawal right; verify with VVTAT guidance).
+      The FAQ already states this policy in plain language (`lib/faq.ts`,
+      `returns` group) — keep the two in step, and treat the legal page as the
+      authoritative wording.
 - [ ] Cookie consent + analytics
 - [ ] Stripe Tax (EU VAT) before launch
 - [ ] Localise Sanity product content once the catalog moves off `lib/rings.ts`

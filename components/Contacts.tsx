@@ -7,7 +7,16 @@ import ScrollReveal from "./ScrollReveal";
 // Brand names — never translated.
 const socials = ["Instagram", "Pinterest", "TikTok"];
 
-export default function Contacts() {
+export default function Contacts({
+  /**
+   * The "05 / KONTAKTAI" eyebrow is part of the home page's numbered section
+   * rhythm, so the standalone /contacts page turns it off — there it would be
+   * counting sections that aren't on the page.
+   */
+  showEyebrow = true,
+}: {
+  showEyebrow?: boolean;
+}) {
   const t = useTranslations("contacts");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
@@ -54,9 +63,11 @@ export default function Contacts() {
       <div className="mx-auto grid max-w-[1320px] grid-cols-1 gap-[clamp(48px,6vw,80px)] lg:grid-cols-[1fr_1.1fr]">
         {/* ── Left ── */}
         <ScrollReveal className="flex flex-col">
-          <div className="mb-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#ff4d3d]">
-            {t("eyebrow")}
-          </div>
+          {showEyebrow && (
+            <div className="mb-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#ff4d3d]">
+              {t("eyebrow")}
+            </div>
+          )}
 
           {/* Contact rows */}
           <div className="mt-[clamp(15px,1vw,38px)] flex flex-col">

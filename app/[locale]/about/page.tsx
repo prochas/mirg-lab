@@ -104,7 +104,7 @@ export default async function AboutPage({
                     </span>
                   </Link>
                   <Link
-                    href="/#contacts"
+                    href="/contacts"
                     className="rounded-full border border-white/30 px-7 py-4 text-[13px] font-semibold uppercase tracking-[0.1em] text-white no-underline transition-colors duration-[350ms] hover:border-white hover:bg-white hover:text-[#111]"
                   >
                     {t("cta.contact")}

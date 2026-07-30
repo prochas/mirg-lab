@@ -3,25 +3,13 @@
 
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { JEWELRY_CATEGORIES, NAV_LINKS } from "@/lib/nav";
 import CartButton from "./cart/CartButton";
 import LanguageSwitcher from "./LanguageSwitcher";
+import MobileMenu from "./MobileMenu";
 
 export default async function Navbar() {
   const t = await getTranslations("nav");
-
-  // Absolute hrefs so these still resolve from /products/* pages.
-  const links = [
-    { label: t("shop"), href: "/#categories" },
-    { label: t("newIn"), href: "/#featured" },
-    { label: t("story"), href: "/about" },
-  ];
-
-  const jewelryCategories = [
-    { label: t("categories.rings"), href: "/products/rings", soon: false },
-    { label: t("categories.chains"), href: "#", soon: true },
-    { label: t("categories.bracelets"), href: "#", soon: true },
-    { label: t("categories.earrings"), href: "#", soon: true },
-  ];
 
   return (
     <header
@@ -40,18 +28,10 @@ export default async function Navbar() {
       </Link>
 
       {/* Navigation links */}
+      {/* Products first, then the info pages, support last — the conventional
+          e-commerce order, since browsing the catalog is the primary action and
+          Contact is the last resort. */}
       <nav aria-label={t("menuLabel")} className="flex items-center gap-[clamp(14px,2vw,26px)] max-md:hidden">
-        {links.map((l) => (
-          <Link
-            key={l.label}
-            href={l.href}
-            className="text-[12.5px] font-semibold uppercase tracking-[0.09em]
-                       text-white/80 no-underline transition-colors duration-300 hover:text-white"
-          >
-            {l.label}
-          </Link>
-        ))}
-
         {/* Jewelry dropdown — pure CSS hover, no JS */}
         <div className="group relative py-2">
           <button
@@ -94,39 +74,51 @@ export default async function Navbar() {
                          shadow-[0_14px_36px_rgba(0,0,0,0.18)]
                          transition-transform duration-200 ease-out group-hover:translate-y-0"
             >
-              {jewelryCategories.map((c) =>
+              {JEWELRY_CATEGORIES.map((c) =>
                 c.soon ? (
                   <span
-                    key={c.label}
+                    key={c.key}
                     className="flex cursor-not-allowed items-center justify-between rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-white/40"
                   >
-                    {c.label}
+                    {t(`categories.${c.key}`)}
                     <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/30">
                       {t("soon")}
                     </span>
                   </span>
                 ) : (
                   <Link
-                    key={c.label}
+                    key={c.key}
                     href={c.href}
                     className="block rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-white no-underline transition-colors duration-200 hover:bg-white/10"
                   >
-                    {c.label}
+                    {t(`categories.${c.key}`)}
                   </Link>
                 ),
               )}
             </div>
           </div>
         </div>
+
+        {NAV_LINKS.map((l) => (
+          <Link
+            key={l.key}
+            href={l.href}
+            className="text-[12.5px] font-semibold uppercase tracking-[0.09em]
+                       text-white/80 no-underline transition-colors duration-300 hover:text-white"
+          >
+            {t(l.key)}
+          </Link>
+        ))}
       </nav>
 
       {/* Icons */}
       <div className="flex items-center gap-1.5">
-        {/* Search */}
+        {/* Search — desktop only. Below md the burger at the far right carries
+            the nav links that the hidden <nav> would otherwise strand. */}
         <button
           aria-label={t("search")}
-          className="group flex h-10 w-10 items-center justify-center rounded-[11px]
-                     text-white transition-colors duration-300 hover:bg-white/90 hover:text-[#111]"
+          className="group hidden h-10 w-10 items-center justify-center rounded-[11px]
+                     text-white transition-colors duration-300 hover:bg-white/90 hover:text-[#111] md:flex"
         >
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
             <circle cx="11" cy="11" r="7" />
@@ -140,6 +132,13 @@ export default async function Navbar() {
 
         {/* Cart — client component so <Navbar> itself stays server-rendered */}
         <CartButton />
+
+        {/* Burger + dropdown panel — mobile only, and deliberately last: as the
+            outermost control it's the easiest one-handed target, it keeps the
+            language/cart utility pair intact rather than splitting it, and a menu
+            at the row's edge is where people look for one. */}
+        <span aria-hidden className="h-5 w-px bg-white/20 md:hidden" />
+        <MobileMenu />
       </div>
     </header>
   );

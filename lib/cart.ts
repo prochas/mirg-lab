@@ -13,7 +13,6 @@ export type CartLine = { slug: string; size: string; qty: number };
 export const mockCart: CartLine[] = [
   { slug: "bangele", size: "18", qty: 1 }, // ready in this exact size
   { slug: "uola", size: "17", qty: 2 }, // made to order
-  { slug: "akmenukas", size: "18", qty: 1 }, // ready, needs resizing
 ];
 
 /** Free shipping threshold in EUR — matches the product page delivery note. */
