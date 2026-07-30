@@ -1,18 +1,20 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCartUI } from "./CartUIProvider";
-import { cartCount, mockCart, resolveCart } from "@/lib/cart";
+import { cartCount, mockCart } from "@/lib/cart";
 
 // Split out of Navbar so the header itself can stay a server component.
 export default function CartButton() {
+  const t = useTranslations("nav");
   const { openCart } = useCartUI();
-  const count = cartCount(resolveCart(mockCart));
+  const count = cartCount(mockCart);
 
   return (
     <button
       type="button"
       onClick={openCart}
-      aria-label={`Krepšelis (${count})`}
+      aria-label={t("cart", { count })}
       className="group relative flex h-10 w-10 items-center justify-center rounded-[11px]
                  text-white transition-colors duration-300 hover:bg-white/90 hover:text-[#111]"
     >

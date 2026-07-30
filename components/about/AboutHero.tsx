@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 import { clamp, useScrollEffect } from "@/lib/scroll";
 
 // Layered parallax: the photo drifts down and zooms while the headline lifts
 // away faster, so the two separate as you scroll into the story.
 export default function AboutHero() {
+  const t = useTranslations("about.hero");
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -61,19 +63,18 @@ export default function AboutHero() {
         <div className="mb-[clamp(20px,3vw,34px)] flex items-center gap-3.5">
           <span className="h-[9px] w-[9px] rounded-full bg-[#ff4d3d]" />
           <span className="text-[12.5px] font-semibold uppercase tracking-[0.16em] text-white/80">
-            01 / Apie mus
+            {t("eyebrow")}
           </span>
         </div>
 
         <h1 className="m-0 flex flex-col gap-[0.06em] font-[family-name:var(--font-anton)] font-normal uppercase leading-[0.85] tracking-[-0.005em] text-white text-[clamp(2.8rem,12vw,10rem)]">
-          <span className="block">Kalta</span>
-          <span className="block">Ranka</span>
-          <span className="block text-[#ff4d3d]">Nuo 2021</span>
+          <span className="block">{t("line1")}</span>
+          <span className="block">{t("line2")}</span>
+          <span className="block text-[#ff4d3d]">{t("line3")}</span>
         </h1>
 
         <p className="mt-[clamp(24px,4vw,40px)] max-w-[46ch] text-[clamp(0.95rem,1.4vw,1.15rem)] font-light leading-[1.6] text-white/70">
-          Maža dirbtuvė Vilniuje, kurioje žiedai gimsta po vieną — ne partijomis,
-          ne konvejeriu, ne skubant.
+          {t("intro")}
         </p>
       </div>
 
@@ -83,7 +84,7 @@ export default function AboutHero() {
         className="absolute bottom-[clamp(24px,4vw,44px)] left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-2.5"
       >
         <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/50">
-          Slinkite
+          {t("scrollHint")}
         </span>
         <span className="h-[46px] w-[1px] bg-gradient-to-b from-white/60 to-transparent" />
       </div>

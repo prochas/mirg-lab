@@ -1,13 +1,16 @@
 "use client";
 
 import { useRef } from "react";
+import { useLocale } from "next-intl";
 import { clamp, useScrollEffect } from "@/lib/scroll";
-import { chapters } from "@/lib/about";
+import { getChapters } from "@/lib/about";
+import type { Locale } from "@/i18n/routing";
 
 // Scrollytelling: the image column is pinned while the text column scrolls.
 // Scroll position picks the active chapter — the image cross-fades to match and
 // the inactive chapters dim, so only the one you're reading is fully lit.
 export default function StoryChapters() {
+  const chapters = getChapters(useLocale() as Locale);
   const sectionRef = useRef<HTMLElement>(null);
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const textRefs = useRef<(HTMLDivElement | null)[]>([]);

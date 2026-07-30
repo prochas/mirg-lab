@@ -12,11 +12,14 @@ export default function SortSelect({
   onChange,
   /** Value treated as "nothing chosen" — keeps the trigger in its idle style. */
   defaultValue,
+  /** Accessible name for the option list. */
+  label,
 }: {
   value: string;
   options: SortOption[];
   onChange: (value: string) => void;
   defaultValue: string;
+  label: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -75,7 +78,7 @@ export default function SortSelect({
 
       <div
         role="listbox"
-        aria-label="Rikiavimas"
+        aria-label={label}
         className={`absolute right-0 top-full z-[500] mt-2 w-[230px] rounded-2xl border border-white/10 bg-[#0c0c0c] p-1.5
                     shadow-[0_18px_50px_rgba(0,0,0,0.35)] transition-[opacity,visibility,transform] duration-200 ease-out ${
                       open

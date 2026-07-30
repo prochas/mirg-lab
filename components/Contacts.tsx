@@ -1,31 +1,39 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import ScrollReveal from "./ScrollReveal";
 
-const contactRows = [
-  {
-    label: "El. paštas",
-    value: "uzsakymai@mirga.lab",
-    href: "mailto:uzsakymai@mirga.lab",
-  },
-  {
-    label: "Telefonas",
-    value: "+370 600 00000",
-    href: "tel:+37060000000",
-  },
-  {
-    label: "Studija",
-    value: "Aušros Vartų g. 12, Vilnius, Lietuva",
-    sub: "Tik iš anksto · Kt–Š 11–18",
-    href: null,
-  },
-];
-
+// Brand names — never translated.
 const socials = ["Instagram", "Pinterest", "TikTok"];
 
 export default function Contacts() {
+  const t = useTranslations("contacts");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+
+  const contactRows = [
+    {
+      key: "email",
+      label: t("rows.email"),
+      value: "uzsakymai@mirga.lab",
+      href: "mailto:uzsakymai@mirga.lab",
+      sub: null,
+    },
+    {
+      key: "phone",
+      label: t("rows.phone"),
+      value: "+370 600 00000",
+      href: "tel:+37060000000",
+      sub: null,
+    },
+    {
+      key: "studio",
+      label: t("rows.studio"),
+      value: t("rows.studioValue"),
+      sub: t("rows.studioHours"),
+      href: null,
+    },
+  ];
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -47,14 +55,14 @@ export default function Contacts() {
         {/* ── Left ── */}
         <ScrollReveal className="flex flex-col">
           <div className="mb-0 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#ff4d3d]">
-            05 / KONTAKTAI
+            {t("eyebrow")}
           </div>
 
           {/* Contact rows */}
           <div className="mt-[clamp(15px,1vw,38px)] flex flex-col">
             {contactRows.map((row) => (
               <div
-                key={row.label}
+                key={row.key}
                 className="border-t border-[#111]/10 py-5 first:border-t-0"
               >
                 <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7a7a76]">
@@ -99,7 +107,7 @@ export default function Contacts() {
         <ScrollReveal delay={100}>
           <div className="rounded-[20px] border border-[#111]/10 bg-white p-[clamp(24px,4vw,44px)]">
             <h3 className="mb-6 font-[family-name:var(--font-anton)] text-[clamp(1.3rem,2.5vw,1.9rem)] font-normal uppercase leading-none tracking-[-0.01em] text-[#111]">
-              Susisiekite su mumis
+              {t("form.title")}
             </h3>
 
             <form
@@ -113,7 +121,7 @@ export default function Contacts() {
                   htmlFor="contact-name"
                   className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7a7a76]"
                 >
-                  Vardas
+                  {t("form.name")}
                 </label>
                 <input
                   id="contact-name"
@@ -123,7 +131,7 @@ export default function Contacts() {
                   required
                   value={form.name}
                   onChange={handleChange}
-                  placeholder="Jūsų vardas"
+                  placeholder={t("form.namePlaceholder")}
                   className="rounded-[10px] border border-[#111]/12 bg-white px-4 py-3 text-[15px] text-[#111] placeholder:text-[#aaa] transition-colors duration-300 focus:border-[#111]/40 focus:outline-none"
                 />
               </div>
@@ -134,7 +142,7 @@ export default function Contacts() {
                   htmlFor="contact-email"
                   className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7a7a76]"
                 >
-                  El. paštas
+                  {t("form.email")}
                 </label>
                 <input
                   id="contact-email"
@@ -144,7 +152,7 @@ export default function Contacts() {
                   required
                   value={form.email}
                   onChange={handleChange}
-                  placeholder="jusu@pastas.lt"
+                  placeholder={t("form.emailPlaceholder")}
                   className="rounded-[10px] border border-[#111]/12 bg-white px-4 py-3 text-[15px] text-[#111] placeholder:text-[#aaa] transition-colors duration-300 focus:border-[#111]/40 focus:outline-none"
                 />
               </div>
@@ -155,7 +163,7 @@ export default function Contacts() {
                   htmlFor="contact-message"
                   className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7a7a76]"
                 >
-                  Ką Norite Sukurti?
+                  {t("form.message")}
                 </label>
                 <textarea
                   id="contact-message"
@@ -164,7 +172,7 @@ export default function Contacts() {
                   required
                   value={form.message}
                   onChange={handleChange}
-                  placeholder="Žiedas, pakabukas, idėja ant servetėlės..."
+                  placeholder={t("form.messagePlaceholder")}
                   className="resize-none rounded-[10px] border border-[#111]/12 bg-white px-4 py-3 text-[15px] text-[#111] placeholder:text-[#aaa] transition-colors duration-300 focus:border-[#111]/40 focus:outline-none"
                 />
               </div>
@@ -174,7 +182,7 @@ export default function Contacts() {
                 type="submit"
                 className="group mt-1 flex w-full items-center justify-center gap-3 rounded-[10px] bg-[#111] py-4 text-[13px] font-semibold uppercase tracking-[0.1em] text-white transition-[background-color,box-shadow] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-[#ff4d3d] hover:shadow-[0_4px_24px_rgba(255,77,61,0.35)]"
               >
-                Siųsti Žinutę
+                {t("form.submit")}
                 <span className="inline-block transition-transform duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-x-1.5">
                   →
                 </span>

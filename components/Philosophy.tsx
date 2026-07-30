@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import QuoteReveal from "./QuoteReveal";
 import ScrollReveal from "./ScrollReveal";
 import HeroStrip from "./HeroStrip";
@@ -21,29 +22,17 @@ const InstagramIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-type CustomCard = {
-  title: string;
-  body: string;
-  cta: string;
-  img: string;
-};
+export default async function Philosophy() {
+  const t = await getTranslations("philosophy");
 
-const cards: CustomCard[] = [
-  {
-    title: "Individualūs Žiedai",
-    body: "Sukurti kartu su jumis, kalti amžinybei. Atneškite eskizą, istoriją ar akmenį.",
-    cta: "Pradėti projektą →",
-    img: "/custom-jewelry-cover.avif",
-  },
-  {
-    title: "Individualūs Pakabukai",
-    body: "Jūsų istorija, išlieta metale. Kas mėnesį — ribotas kiekis vietų.",
-    cta: "Užsiregistruoti →",
-    img: "/custom-grillz-cover.avif",
-  },
-];
+  const cards = (["rings", "pendants"] as const).map((key) => ({
+    key,
+    title: t(`cards.${key}.title`),
+    body: t(`cards.${key}.body`),
+    cta: t(`cards.${key}.cta`),
+    img: key === "rings" ? "/custom-jewelry-cover.avif" : "/custom-grillz-cover.avif",
+  }));
 
-export default function Philosophy() {
   return (
     <section
       id="story"
@@ -51,18 +40,18 @@ export default function Philosophy() {
     >
       <div className="px-[clamp(20px,5vw,80px)] pt-[clamp(64px,10vw,140px)] pb-[clamp(48px,7vw,96px)]">
         <ScrollReveal className="mb-[clamp(24px,4vw,44px)] text-center text-[13px] font-semibold tracking-[0.12em] text-[#ff4d3d]">
-          03 / MŪSŲ FILOSOFIJA
+          {t("eyebrow")}
         </ScrollReveal>
 
         <QuoteReveal
-          text={"Kuriame Tiems,\nKurie Nenori Būti\nKaip Visi."}
+          text={t("quote")}
           className="mx-auto mb-[clamp(56px,8vw,110px)] max-w-[14ch] text-center font-[family-name:var(--font-anton)] font-normal uppercase leading-[1.15] tracking-[-0.01em] text-[clamp(2.2rem,7vw,6rem)]"
         />
 
         <div className="mx-auto grid max-w-[1100px] grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[clamp(16px,2vw,28px)]">
           {cards.map((c, i) => (
             <ScrollReveal
-              key={c.title}
+              key={c.key}
               delay={i * 120}
               className="group flex flex-col overflow-hidden rounded-3xl"
             >
@@ -99,7 +88,7 @@ export default function Philosophy() {
         <div className="mt-[clamp(56px,8vw,110px)] border-t border-white/10 pt-[clamp(48px,7vw,96px)]">
           <ScrollReveal className="flex flex-col items-center text-center">
             <div className="mb-[clamp(18px,3vw,32px)] text-[13px] font-semibold tracking-[0.12em] text-[#ff4d3d]">
-              04 / FOLLOW ALONG
+              {t("instagram.eyebrow")}
             </div>
 
             <a
@@ -115,7 +104,7 @@ export default function Philosophy() {
             </a>
 
             <p className="mt-[clamp(14px,2vw,24px)] text-[15px] font-light text-white/50">
-              Sekite mus — kūriniai, procesas, naujienos.
+              {t("instagram.sub")}
             </p>
             <HeroStrip />
             <a
@@ -125,7 +114,7 @@ export default function Philosophy() {
               className="mt-[clamp(20px,3vw,36px)] flex items-center gap-3 rounded-full border border-white/20 px-8 py-4 text-[15px] font-semibold uppercase tracking-[0.1em] text-white no-underline transition-all duration-[350ms] hover:border-white/60 hover:bg-white hover:text-[#111]"
             >
               <InstagramIcon className="h-[18px] w-[18px]" />
-              Sekti
+              {t("instagram.follow")}
             </a>
           </ScrollReveal>
         </div>

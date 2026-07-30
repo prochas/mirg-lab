@@ -1,0 +1,318 @@
+{
+  "metadata": {
+    "home": {
+      "title": "mirga.lab — handmade rings & pendants",
+      "description": "Solid metal rings and pendants, forged by hand in small batches."
+    },
+    "about": {
+      "title": "About us — mirga.lab",
+      "description": "A small Vilnius studio where rings have been forged by hand since 2021."
+    },
+    "rings": {
+      "title": "Rings — mirga.lab",
+      "description": "Handmade rings, made in small batches."
+    },
+    "product": {
+      "title": "{title} — mirga.lab"
+    }
+  },
+
+  "common": {
+    "ready": "Ready",
+    "made": "Made to order"
+  },
+
+  "language": {
+    "label": "Language",
+    "lt": "Lietuvių",
+    "en": "English",
+    "switchTo": "Switch language to {language}"
+  },
+
+  "nav": {
+    "menuLabel": "Main menu",
+    "shop": "Shop",
+    "newIn": "New In",
+    "story": "Story",
+    "jewelry": "Jewellery",
+    "soon": "Coming soon",
+    "search": "Search",
+    "cart": "Cart ({count})",
+    "categories": {
+      "rings": "Rings",
+      "chains": "Chains",
+      "bracelets": "Bracelets",
+      "earrings": "Earrings"
+    }
+  },
+
+  "hero": {
+    "eyebrow": "Handmade · Small batch · Since 2021",
+    "line1": "Forged",
+    "line2": "By Hand",
+    "line3": "Worn Loud",
+    "cta": "Shop the collection"
+  },
+
+  "categories": {
+    "eyebrow": "01 / SHOP",
+    "heading": "By Category",
+    "meta": "Handmade",
+    "items": {
+      "rings": "Rings",
+      "chains": "Chains",
+      "bracelets": "Bracelets",
+      "earrings": "Earrings"
+    },
+    "custom": {
+      "line1": "Made",
+      "line2": "To Order",
+      "cta": "Build your own piece →"
+    }
+  },
+
+  "featured": {
+    "eyebrow": "02 / NEW THIS WEEK",
+    "heading": "Fresh Off The Bench",
+    "ring": "Ring No. {n}"
+  },
+
+  "philosophy": {
+    "eyebrow": "03 / OUR PHILOSOPHY",
+    "quote": "We Make For\nThose Who\nRefuse To Blend.",
+    "cards": {
+      "rings": {
+        "title": "Custom Rings",
+        "body": "Designed with you, forged to outlast you. Bring a sketch, a story or a stone.",
+        "cta": "Start a project →"
+      },
+      "pendants": {
+        "title": "Custom Pendants",
+        "body": "Your story, cast in metal. A limited number of slots each month.",
+        "cta": "Join the list →"
+      }
+    },
+    "instagram": {
+      "eyebrow": "04 / FOLLOW ALONG",
+      "sub": "Follow along — pieces, process, news.",
+      "follow": "Follow"
+    }
+  },
+
+  "contacts": {
+    "eyebrow": "05 / CONTACT",
+    "rows": {
+      "email": "Email",
+      "phone": "Phone",
+      "studio": "Studio",
+      "studioValue": "Aušros Vartų g. 12, Vilnius, Lithuania",
+      "studioHours": "By appointment only · Thu–Sat 11–18"
+    },
+    "form": {
+      "title": "Get in touch",
+      "name": "Name",
+      "namePlaceholder": "Your name",
+      "email": "Email",
+      "emailPlaceholder": "you@email.com",
+      "message": "What Do You Want Made?",
+      "messagePlaceholder": "A ring, a pendant, an idea on a napkin...",
+      "submit": "Send Message"
+    }
+  },
+
+  "footer": {
+    "tagline": "Handmade rings and pendants, made in small batches for people who'd rather not match everyone else.",
+    "columns": {
+      "1": {
+        "title": "Shop",
+        "links": {
+          "1": "Rings",
+          "2": "Pendants",
+          "3": "Stacks",
+          "4": "Gift cards"
+        }
+      },
+      "2": {
+        "title": "Studio",
+        "links": {
+          "1": "Our story",
+          "2": "Custom work",
+          "3": "Care guide",
+          "4": "Sizing"
+        }
+      },
+      "3": {
+        "title": "Connect",
+        "links": {
+          "1": "Instagram",
+          "2": "Newsletter",
+          "3": "Stockists",
+          "4": "Contact"
+        }
+      }
+    },
+    "credit": {
+      "prefix": "© 2026 mirga.lab — Built by ",
+      "highlight": "stubborn hands",
+      "suffix": "."
+    },
+    "top": "Top ↑"
+  },
+
+  "catalog": {
+    "breadcrumbHome": "Home",
+    "title": "Rings",
+    "intro": "Every ring is forged by hand in small batches. No two are exactly alike.",
+    "filters": {
+      "size": "Size",
+      "all": "All",
+      "ready": "Ready",
+      "made": "Made to order",
+      "clear": "Clear filters"
+    },
+    "sort": {
+      "label": "Sorting",
+      "default": "Sort",
+      "priceAsc": "Cheapest first",
+      "priceDesc": "Most expensive first"
+    },
+    "found": "{count, plural, one {# ring found} other {# rings found}}",
+    "empty": {
+      "title": "No rings match these filters",
+      "cta": "Clear filters"
+    }
+  },
+
+  "product": {
+    "breadcrumbHome": "Home",
+    "breadcrumbRings": "Rings",
+    "size": "Size",
+    "sizeGuide": "Size guide",
+    "choosePrompt": "Choose a size to see the making time.",
+    "chooseSize": "Choose a size",
+    "addToCart": "Add to cart — {price}",
+    "customNote": "Need a different size or an engraving? Write to us.",
+    "photo": "{title} — photo {n}",
+    "spec": "Specification",
+    "delivery": {
+      "title": "Delivery",
+      "items": {
+        "1": "Lithuania — 2–3 business days, free over €100",
+        "2": "Other EU countries — 4–7 business days",
+        "3": "Sent by registered post with a tracking number"
+      }
+    },
+    "care": {
+      "title": "Care and returns",
+      "items": {
+        "1": "Clean with a soft cloth, no abrasives",
+        "2": "Take it off before sport and showers",
+        "3": "Ready-made rings can be returned within 14 days",
+        "4": "Made-to-order rings are non-returnable"
+      }
+    },
+    "related": {
+      "eyebrow": "You might also like",
+      "heading": "Similar Rings",
+      "all": "All rings"
+    }
+  },
+
+  "sizeChart": {
+    "dialogLabel": "Ring size chart",
+    "eyebrow": "Size chart",
+    "title": "How to measure your size",
+    "close": "Close",
+    "steps": {
+      "1": "Wrap a narrow strip of paper or a piece of thread around the thickest part of your finger.",
+      "2": "Mark the point where the end overlaps and measure that length in millimetres.",
+      "3": "That is your finger circumference. Find the closest value in the table.",
+      "4": "Measure in the evening, when fingers are slightly swollen. Cold makes them thinner."
+    },
+    "table": {
+      "size": "Size (mm)",
+      "circumference": "Circumference (mm)",
+      "eu": "EU",
+      "us": "US"
+    },
+    "note": "Our size = the ring's inner diameter in millimetres. US sizes are approximate. If your measurement falls between two sizes, take the larger one: a wider band is harder to get on.",
+    "doubt": {
+      "prefix": "Still unsure? ",
+      "link": "Write to us",
+      "suffix": " — we'll help you choose."
+    }
+  },
+
+  "cart": {
+    "dialogLabel": "Shopping cart",
+    "title": "Cart",
+    "close": "Close cart",
+    "empty": {
+      "title": "Your cart is empty",
+      "body": "Nothing picked yet. Rings are made one at a time — start with one.",
+      "cta": "Browse rings"
+    },
+    "shipping": {
+      "free": "✓ Free shipping in Lithuania",
+      "remaining": "{amount} away from free shipping"
+    },
+    "sizeLabel": "Size {size}",
+    "remove": "Remove {title}",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity",
+    "subtotal": "Subtotal",
+    "shippingLabel": "Shipping",
+    "shippingFree": "Free",
+    "shippingCalculated": "Calculated",
+    "total": "Total",
+    "taxNote": "Taxes calculated at checkout",
+    "checkout": "Checkout — {total}",
+    "continue": "Continue shopping",
+    "secure": "Secure payment via Stripe"
+  },
+
+  "fulfillment": {
+    "readyExact": {
+      "message": "This ring is already finished — we ship it within 1–2 business days.",
+      "short": "Ships in 1–2 business days"
+    },
+    "readyResize": {
+      "message": "We have a finished piece in size {readySize} — we'll resize it to {chosenSize}, which takes 1–2 business days.",
+      "short": "Resizing takes 1–2 business days"
+    },
+    "madeToOrder": {
+      "message": "Made to order — it takes 1–2 weeks to finish.",
+      "short": "Made to order, 1–2 weeks"
+    }
+  },
+
+  "about": {
+    "hero": {
+      "eyebrow": "01 / About us",
+      "line1": "Forged",
+      "line2": "By Hand",
+      "line3": "Since 2021",
+      "intro": "A small studio in Vilnius where rings are born one at a time — not in batches, not on a line, never in a hurry.",
+      "scrollHint": "Scroll"
+    },
+    "manifesto": {
+      "eyebrow": "02 / Our story",
+      "lead": "We don't make jewellery for everyone.",
+      "rest": " We make it for the people who notice the difference."
+    },
+    "process": {
+      "eyebrow": "03 / How a ring is born",
+      "heading": "From Sketch To Box"
+    },
+    "values": {
+      "eyebrow": "04 / What we believe",
+      "heading": "Our Values"
+    },
+    "cta": {
+      "title": "Now It's Your Turn",
+      "body": "Pick from what has already been forged, or write to us and let's start from a blank sheet.",
+      "rings": "Browse rings",
+      "contact": "Get in touch"
+    }
+  }
+}

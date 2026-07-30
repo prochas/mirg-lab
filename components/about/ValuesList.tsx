@@ -1,12 +1,16 @@
 "use client";
 
 import { useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { clamp, useScrollEffect } from "@/lib/scroll";
-import { values } from "@/lib/about";
+import { getValues } from "@/lib/about";
+import type { Locale } from "@/i18n/routing";
 
 // Each row's rule draws itself in as the row crosses the lower half of the
 // viewport, so the list assembles under you as you scroll.
 export default function ValuesList() {
+  const t = useTranslations("about.values");
+  const values = getValues(useLocale() as Locale);
   const sectionRef = useRef<HTMLElement>(null);
   const ruleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -37,10 +41,10 @@ export default function ValuesList() {
     >
       <div className="mb-[clamp(28px,4vw,52px)]">
         <div className="mb-[clamp(16px,1.6vw,22px)] text-[13px] font-semibold uppercase tracking-[0.12em] text-[#ff4d3d]">
-          04 / Kuo tikime
+          {t("eyebrow")}
         </div>
         <h2 className="m-0 font-[family-name:var(--font-anton)] font-normal uppercase leading-[0.95] tracking-[-0.01em] text-[clamp(1.9rem,5vw,3.8rem)] text-[#111]">
-          Mūsų Vertybės
+          {t("heading")}
         </h2>
       </div>
 

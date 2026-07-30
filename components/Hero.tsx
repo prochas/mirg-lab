@@ -1,6 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import KineticHeadline from "./KineticHeadline";
 
-export default function Hero() {
+export default async function Hero() {
+  const t = await getTranslations("hero");
+
   return (
     <section className="relative overflow-hidden min-h-dvh flex flex-col bg-[#111]">
       {/* Background video — drop your src here, opacity controlled below */}
@@ -26,13 +29,13 @@ export default function Hero() {
         <div className="mb-[clamp(20px,3vw,34px)] flex items-center gap-3.5">
           <span className="h-[9px] w-[9px] rounded-full bg-white" />
           <span className="text-[12.5px] font-semibold uppercase tracking-[0.16em] text-white/80">
-            Handmade · Small batch · Since 2021
+            {t("eyebrow")}
           </span>
         </div>
 
         {/* Kinetic headline */}
         <KineticHeadline
-          lines={["Forged", "By Hand", "Worn Loud"]}
+          lines={[t("line1"), t("line2"), t("line3")]}
           className="text-white text-center"
         />
 
@@ -44,7 +47,7 @@ export default function Hero() {
                          text-[clamp(1rem,1.4vw,1.25rem)] font-semibold text-white no-underline
                          transition-colors duration-[350ms] hover:border-[#ff4d3d] hover:text-[#ff4d3d]"
           >
-            Shop the collection
+            {t("cta")}
             <span className="inline-block transition-transform duration-[350ms] group-hover:translate-x-1.5">
               →
             </span>

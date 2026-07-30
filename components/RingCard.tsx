@@ -1,8 +1,15 @@
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
+import { formatPrice } from "@/lib/format";
 import type { RingProduct } from "@/lib/rings";
 
-// Shared by the catalog grid and the "similar rings" row so both stay in sync.
+// Shared by the catalog grid (client) and the "similar rings" row (server), so
+// this uses the hook APIs — they work in both.
 export default function RingCard({ ring }: { ring: RingProduct }) {
+  const t = useTranslations("common");
+  const locale = useLocale() as Locale;
+
   return (
     <Link
       href={`/products/${ring.slug}`}
@@ -30,7 +37,7 @@ export default function RingCard({ ring }: { ring: RingProduct }) {
             ring.ready ? "bg-white/90 text-[#111]" : "bg-[#111]/80 text-white"
           }`}
         >
-          {ring.ready ? "Paruošta" : "Gaminama"}
+          {ring.ready ? t("ready") : t("made")}
         </div>
       </div>
 
@@ -39,7 +46,7 @@ export default function RingCard({ ring }: { ring: RingProduct }) {
           {ring.title}
         </div>
         <div className="text-[15px] font-medium text-[#111]">
-          {ring.price} €
+          {formatPrice(ring.price, locale)}
         </div>
       </div>
       <div className="text-[13px] text-[#7a7a76]">{ring.material}</div>

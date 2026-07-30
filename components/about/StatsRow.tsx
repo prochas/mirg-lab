@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { stats } from "@/lib/about";
+import { useEffect, useMemo, useRef } from "react";
+import { useLocale } from "next-intl";
+import { getStats } from "@/lib/about";
+import type { Locale } from "@/i18n/routing";
 
 // Numbers count up once, when the row first enters view. Values are written
 // straight to the DOM — 60fps of setState here would re-render for nothing.
 export default function StatsRow() {
+  const locale = useLocale() as Locale;
+  // Memoised so the count-up effect below keeps a stable dependency.
+  const stats = useMemo(() => getStats(locale), [locale]);
   const rootRef = useRef<HTMLDivElement>(null);
   const valueRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
@@ -51,7 +56,7 @@ export default function StatsRow() {
       observer.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [stats]);
 
   return (
     <div

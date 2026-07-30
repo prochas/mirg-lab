@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import ScrollReveal from "./ScrollReveal";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
@@ -19,7 +20,9 @@ const InstagramIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export default function Instagram() {
+export default async function Instagram() {
+  const t = await getTranslations("philosophy.instagram");
+
   return (
     <section
       id="instagram"
@@ -37,7 +40,7 @@ export default function Instagram() {
 
           {/* Label */}
           <div className="relative mb-[clamp(18px,3vw,32px)] text-[13px] font-semibold tracking-[0.12em] text-[#ff4d3d]">
-            04 / FOLLOW ALONG
+            {t("eyebrow")}
           </div>
 
           {/* Handle */}
@@ -50,13 +53,13 @@ export default function Instagram() {
 
           {/* Sub-line */}
           <p className="relative mt-[clamp(16px,2.5vw,28px)] text-[15px] font-light text-white/50 transition-colors duration-500 group-hover:text-white/70">
-            Sekite mus — kūriniai, procesas, naujienos.
+            {t("sub")}
           </p>
 
           {/* Follow pill */}
           <div className="relative mt-[clamp(24px,3.5vw,44px)] flex items-center gap-2.5 rounded-full border border-white/20 px-6 py-[11px] text-[13px] font-semibold uppercase tracking-[0.1em] transition-all duration-[350ms] group-hover:border-white/60 group-hover:bg-white group-hover:text-[#111]">
             <InstagramIcon className="w-[15px] h-[15px]" />
-            Sekti
+            {t("follow")}
           </div>
         </a>
       </ScrollReveal>

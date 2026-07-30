@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function ProductGallery({
   images,
@@ -11,6 +12,8 @@ export default function ProductGallery({
   title: string;
   ready: boolean;
 }) {
+  const t = useTranslations("product");
+  const tCommon = useTranslations("common");
   const [active, setActive] = useState(0);
 
   return (
@@ -35,7 +38,7 @@ export default function ProductGallery({
             ready ? "bg-white/90 text-[#111]" : "bg-[#111]/80 text-white"
           }`}
         >
-          {ready ? "Paruošta" : "Gaminama"}
+          {ready ? tCommon("ready") : tCommon("made")}
         </div>
 
         <div className="absolute bottom-3.5 right-3.5 rounded-full bg-[#111]/70 px-3 py-[5px] text-[11px] font-semibold text-white">
@@ -50,7 +53,7 @@ export default function ProductGallery({
             key={src + i}
             type="button"
             onClick={() => setActive(i)}
-            aria-label={`${title} — nuotrauka ${i + 1}`}
+            aria-label={t("photo", { title, n: i + 1 })}
             aria-current={i === active}
             className={`relative aspect-square w-[clamp(64px,9vw,88px)] flex-none overflow-hidden rounded-[14px] bg-[#e9e7df] transition-[border-color,opacity] duration-300 ${
               i === active

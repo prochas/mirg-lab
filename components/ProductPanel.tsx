@@ -1,18 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import SizeChartModal from "./SizeChartModal";
 import { useCartUI } from "./cart/CartUIProvider";
+import type { Locale } from "@/i18n/routing";
+import { formatPrice } from "@/lib/format";
 import { getFulfillment } from "@/lib/fulfillment";
 import type { RingProduct } from "@/lib/rings";
 
 export default function ProductPanel({ ring }: { ring: RingProduct }) {
+  const t = useTranslations("product");
+  const tFulfillment = useTranslations("fulfillment");
+  const locale = useLocale() as Locale;
   const [chosenSize, setChosenSize] = useState<string | null>(null);
   const [chartOpen, setChartOpen] = useState(false);
   const { openCart } = useCartUI();
 
   const fulfillment = chosenSize
-    ? getFulfillment(ring, chosenSize)
+    ? getFulfillment(ring, chosenSize, tFulfillment)
     : null;
 
   return (
@@ -21,7 +27,7 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
         {/* Size header + chart trigger */}
         <div className="mb-2.5 flex items-baseline justify-between gap-4">
           <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7a7a76]">
-            Dydis
+            {t("size")}
           </div>
           <button
             type="button"
@@ -41,7 +47,7 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
               <rect x="2" y="7" width="20" height="10" rx="2" />
               <path d="M6 7v3M10 7v5M14 7v3M18 7v5" />
             </svg>
-            Dydžių lentelė
+            {t("sizeGuide")}
           </button>
         </div>
 
@@ -84,9 +90,7 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
                   : "bg-[#7a7a76]"
             }`}
           />
-          {fulfillment
-            ? fulfillment.message
-            : "Pasirinkite dydį, kad matytumėte pagaminimo laiką."}
+          {fulfillment ? fulfillment.message : t("choosePrompt")}
         </div>
 
         {/* Opens the drawer to preview the cart UI. Nothing is actually added —
@@ -99,13 +103,13 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
         >
           {chosenSize ? (
             <>
-              Į krepšelį — {ring.price} €
+              {t("addToCart", { price: formatPrice(ring.price, locale) })}
               <span className="inline-block transition-transform duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-x-1.5">
                 →
               </span>
             </>
           ) : (
-            "Pasirinkite dydį"
+            t("chooseSize")
           )}
         </button>
 
@@ -113,7 +117,7 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
           href="mailto:uzsakymai@mirga.lab"
           className="mt-3 block text-center text-[13px] text-[#7a7a76] no-underline transition-colors duration-300 hover:text-[#111]"
         >
-          Norite kitokio dydžio ar gravūros? Parašykite mums.
+          {t("customNote")}
         </a>
       </div>
 

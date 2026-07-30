@@ -1,0 +1,318 @@
+{
+  "metadata": {
+    "home": {
+      "title": "mirga.lab — rankų darbo žiedai ir pakabukai",
+      "description": "Masyvūs metalo žiedai ir pakabukai, kalami ranka mažomis partijomis."
+    },
+    "about": {
+      "title": "Apie mus — mirga.lab",
+      "description": "Maža Vilniaus dirbtuvė, kurioje žiedai kalami ranka nuo 2021-ųjų."
+    },
+    "rings": {
+      "title": "Žiedai — mirga.lab",
+      "description": "Rankų darbo žiedai, gaminami mažomis partijomis."
+    },
+    "product": {
+      "title": "{title} — mirga.lab"
+    }
+  },
+
+  "common": {
+    "ready": "Paruošta",
+    "made": "Gaminama"
+  },
+
+  "language": {
+    "label": "Kalba",
+    "lt": "Lietuvių",
+    "en": "English",
+    "switchTo": "Perjungti kalbą į {language}"
+  },
+
+  "nav": {
+    "menuLabel": "Pagrindinis meniu",
+    "shop": "Parduotuvė",
+    "newIn": "Naujienos",
+    "story": "Istorija",
+    "jewelry": "Papuošalai",
+    "soon": "Netrukus",
+    "search": "Paieška",
+    "cart": "Krepšelis ({count})",
+    "categories": {
+      "rings": "Žiedai",
+      "chains": "Grandinėlės",
+      "bracelets": "Apyrankės",
+      "earrings": "Auskarai"
+    }
+  },
+
+  "hero": {
+    "eyebrow": "Rankų darbas · Mažos partijos · Nuo 2021",
+    "line1": "Kalta",
+    "line2": "Ranka",
+    "line3": "Nešiojama Garsiai",
+    "cta": "Žiūrėti kolekciją"
+  },
+
+  "categories": {
+    "eyebrow": "01 / PARDUOTUVĖ",
+    "heading": "Pagal kategoriją",
+    "meta": "Rankų darbas",
+    "items": {
+      "rings": "Žiedai",
+      "chains": "Grandinėlės",
+      "bracelets": "Apyrankės",
+      "earrings": "Auskarai"
+    },
+    "custom": {
+      "line1": "Gaminame",
+      "line2": "Pagal Užsakymą",
+      "cta": "Sukurkite savo →"
+    }
+  },
+
+  "featured": {
+    "eyebrow": "02 / ŠIOS SAVAITĖS NAUJIENOS",
+    "heading": "Ką Tik Nuo Stalo",
+    "ring": "Žiedas Nr. {n}"
+  },
+
+  "philosophy": {
+    "eyebrow": "03 / MŪSŲ FILOSOFIJA",
+    "quote": "Kuriame Tiems,\nKurie Nenori Būti\nKaip Visi.",
+    "cards": {
+      "rings": {
+        "title": "Individualūs Žiedai",
+        "body": "Sukurti kartu su jumis, kalti amžinybei. Atneškite eskizą, istoriją ar akmenį.",
+        "cta": "Pradėti projektą →"
+      },
+      "pendants": {
+        "title": "Individualūs Pakabukai",
+        "body": "Jūsų istorija, išlieta metale. Kas mėnesį — ribotas kiekis vietų.",
+        "cta": "Užsiregistruoti →"
+      }
+    },
+    "instagram": {
+      "eyebrow": "04 / SEKITE MUS",
+      "sub": "Sekite mus — kūriniai, procesas, naujienos.",
+      "follow": "Sekti"
+    }
+  },
+
+  "contacts": {
+    "eyebrow": "05 / KONTAKTAI",
+    "rows": {
+      "email": "El. paštas",
+      "phone": "Telefonas",
+      "studio": "Studija",
+      "studioValue": "Aušros Vartų g. 12, Vilnius, Lietuva",
+      "studioHours": "Tik iš anksto · Kt–Š 11–18"
+    },
+    "form": {
+      "title": "Susisiekite su mumis",
+      "name": "Vardas",
+      "namePlaceholder": "Jūsų vardas",
+      "email": "El. paštas",
+      "emailPlaceholder": "jusu@pastas.lt",
+      "message": "Ką Norite Sukurti?",
+      "messagePlaceholder": "Žiedas, pakabukas, idėja ant servetėlės...",
+      "submit": "Siųsti Žinutę"
+    }
+  },
+
+  "footer": {
+    "tagline": "Rankų darbo žiedai ir pakabukai, gaminami mažomis partijomis tiems, kurie nenori būti kaip visi.",
+    "columns": {
+      "1": {
+        "title": "Parduotuvė",
+        "links": {
+          "1": "Žiedai",
+          "2": "Pakabukai",
+          "3": "Rinkiniai",
+          "4": "Dovanų kuponai"
+        }
+      },
+      "2": {
+        "title": "Dirbtuvė",
+        "links": {
+          "1": "Mūsų istorija",
+          "2": "Individualūs darbai",
+          "3": "Priežiūra",
+          "4": "Dydžiai"
+        }
+      },
+      "3": {
+        "title": "Kontaktai",
+        "links": {
+          "1": "Instagram",
+          "2": "Naujienlaiškis",
+          "3": "Partneriai",
+          "4": "Susisiekti"
+        }
+      }
+    },
+    "credit": {
+      "prefix": "© 2026 mirga.lab — Kūrė ",
+      "highlight": "užsispyrusios rankos",
+      "suffix": "."
+    },
+    "top": "Į viršų ↑"
+  },
+
+  "catalog": {
+    "breadcrumbHome": "Pradžia",
+    "title": "Žiedai",
+    "intro": "Kiekvienas žiedas kalamas ranka, mažomis partijomis. Jokių dviejų nėra visiškai vienodų.",
+    "filters": {
+      "size": "Dydis",
+      "all": "Visi",
+      "ready": "Paruošta",
+      "made": "Gaminama",
+      "clear": "Išvalyti filtrus"
+    },
+    "sort": {
+      "label": "Rikiavimas",
+      "default": "Rikiuoti",
+      "priceAsc": "Pigiausi viršuje",
+      "priceDesc": "Brangiausi viršuje"
+    },
+    "found": "{count, plural, one {Rastas # žiedas} few {Rasti # žiedai} other {Rasta # žiedų}}",
+    "empty": {
+      "title": "Pagal filtrus žiedų nerasta",
+      "cta": "Išvalyti filtrus"
+    }
+  },
+
+  "product": {
+    "breadcrumbHome": "Pradžia",
+    "breadcrumbRings": "Žiedai",
+    "size": "Dydis",
+    "sizeGuide": "Dydžių lentelė",
+    "choosePrompt": "Pasirinkite dydį, kad matytumėte pagaminimo laiką.",
+    "chooseSize": "Pasirinkite dydį",
+    "addToCart": "Į krepšelį — {price}",
+    "customNote": "Norite kitokio dydžio ar gravūros? Parašykite mums.",
+    "photo": "{title} — nuotrauka {n}",
+    "spec": "Specifikacija",
+    "delivery": {
+      "title": "Pristatymas",
+      "items": {
+        "1": "Lietuvoje — 2–3 d. d., nemokamai nuo 100 €",
+        "2": "ES šalyse — 4–7 d. d.",
+        "3": "Siunčiame registruotu paštu su sekimo numeriu"
+      }
+    },
+    "care": {
+      "title": "Priežiūra ir grąžinimas",
+      "items": {
+        "1": "Valykite minkšta šluoste, be abrazyvų",
+        "2": "Nusiimkite prieš sportą ir dušą",
+        "3": "Paruoštus žiedus galima grąžinti per 14 d.",
+        "4": "Pagal užsakymą gaminti žiedai negrąžinami"
+      }
+    },
+    "related": {
+      "eyebrow": "Taip pat tiks",
+      "heading": "Panašūs Žiedai",
+      "all": "Visi žiedai"
+    }
+  },
+
+  "sizeChart": {
+    "dialogLabel": "Žiedų dydžių lentelė",
+    "eyebrow": "Dydžių lentelė",
+    "title": "Kaip išmatuoti dydį",
+    "close": "Uždaryti",
+    "steps": {
+      "1": "Apjuoskite pirštą siauru popieriaus lankeliu arba siūlu ties storiausia vieta.",
+      "2": "Pažymėkite tašką, kur galas persidengia, ir išmatuokite ilgį milimetrais.",
+      "3": "Tai — piršto apimtis. Lentelėje raskite artimiausią reikšmę.",
+      "4": "Matuokite vakare, kai pirštai šiek tiek patinę. Šaltis juos suplonina."
+    },
+    "table": {
+      "size": "Dydis (mm)",
+      "circumference": "Apimtis (mm)",
+      "eu": "EU",
+      "us": "US"
+    },
+    "note": "Mūsų dydis = vidinis žiedo skersmuo milimetrais. US dydžiai — apytiksliai. Jei matavimas patenka tarp dviejų dydžių, rinkitės didesnį: platesnį žiedą užmauti sunkiau.",
+    "doubt": {
+      "prefix": "Vis tiek abejojate? ",
+      "link": "Parašykite mums",
+      "suffix": " — padėsime pasirinkti."
+    }
+  },
+
+  "cart": {
+    "dialogLabel": "Pirkinių krepšelis",
+    "title": "Krepšelis",
+    "close": "Uždaryti krepšelį",
+    "empty": {
+      "title": "Krepšelis tuščias",
+      "body": "Dar nieko nepasirinkote. Žiedai gaminami po vieną — pradėkite nuo vieno.",
+      "cta": "Žiūrėti žiedus"
+    },
+    "shipping": {
+      "free": "✓ Nemokamas pristatymas Lietuvoje",
+      "remaining": "Iki nemokamo pristatymo liko {amount}"
+    },
+    "sizeLabel": "Dydis {size}",
+    "remove": "Pašalinti {title}",
+    "decrease": "Sumažinti kiekį",
+    "increase": "Padidinti kiekį",
+    "subtotal": "Tarpinė suma",
+    "shippingLabel": "Pristatymas",
+    "shippingFree": "Nemokamas",
+    "shippingCalculated": "Skaičiuojama",
+    "total": "Iš viso",
+    "taxNote": "Mokesčiai apskaičiuojami atsiskaitant",
+    "checkout": "Apmokėti — {total}",
+    "continue": "Tęsti apsipirkimą",
+    "secure": "Saugus mokėjimas per Stripe"
+  },
+
+  "fulfillment": {
+    "readyExact": {
+      "message": "Šis žiedas jau paruoštas — išsiunčiame per 1–2 darbo dienas.",
+      "short": "Išsiunčiame per 1–2 d. d."
+    },
+    "readyResize": {
+      "message": "Turime paruoštą {readySize} dydžio vienetą — pakeisime į {chosenSize}, tai užtrunka 1–2 darbo dienas.",
+      "short": "Dydžio keitimas 1–2 d. d."
+    },
+    "madeToOrder": {
+      "message": "Gaminama pagal užsakymą — paruošimas trunka 1–2 savaites.",
+      "short": "Gaminama 1–2 sav."
+    }
+  },
+
+  "about": {
+    "hero": {
+      "eyebrow": "01 / Apie mus",
+      "line1": "Kalta",
+      "line2": "Ranka",
+      "line3": "Nuo 2021",
+      "intro": "Maža dirbtuvė Vilniuje, kurioje žiedai gimsta po vieną — ne partijomis, ne konvejeriu, ne skubant.",
+      "scrollHint": "Slinkite"
+    },
+    "manifesto": {
+      "eyebrow": "02 / Mūsų istorija",
+      "lead": "Nedarome papuošalų visiems.",
+      "rest": " Darome juos tiems, kurie pastebi skirtumą."
+    },
+    "process": {
+      "eyebrow": "03 / Kaip gimsta žiedas",
+      "heading": "Nuo Eskizo Iki Dėžutės"
+    },
+    "values": {
+      "eyebrow": "04 / Kuo tikime",
+      "heading": "Mūsų Vertybės"
+    },
+    "cta": {
+      "title": "Dabar — jūsų eilė",
+      "body": "Išsirinkite iš to, kas jau nukalta, arba parašykite mums ir pradėkime nuo tuščio lapo.",
+      "rings": "Žiūrėti žiedus",
+      "contact": "Susisiekti"
+    }
+  }
+}

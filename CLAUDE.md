@@ -9,13 +9,15 @@ making changes. Prefer the conventions here over generic defaults.
 the owner's own design. This is an MVP. Keep it lean: do not add infrastructure,
 abstractions, or features that aren't needed yet.
 
-The shop UI is in **Lithuanian**. Prices and currency are **EUR**. Customers are
+The shop UI is **bilingual: Lithuanian (default) and English** — see
+"Internationalisation" below. Prices and currency are **EUR**. Customers are
 mostly in the EU (Lithuania first).
 
 ## Tech stack
 
 - **Next.js 16** (App Router, TypeScript, `src/` directory, import alias `@/*`)
 - **Tailwind CSS**
+- **next-intl** — LT/EN routing + message catalogs
 - **Sanity** — product catalog + content (single source of truth for products).
   Studio is embedded in the app at `/studio`.
 - **Stripe** — payments via **hosted Checkout** (not the custom Payment Element).
@@ -33,6 +35,77 @@ No database and no auth framework — see "Key architecture decisions" below.
    the client redirects to `session.url`. Do not build a custom card form.
 4. **Cart is client-side** (planned: Zustand + localStorage). The cart stores
    only `{ id, size, qty }` — never prices.
+
+## Internationalisation (next-intl)
+
+Two locales: `lt` (default, **unprefixed**) and `en` (under `/en`).
+`localePrefix: 'as-needed'`, so `/products/rings` is Lithuanian and
+`/en/products/rings` is English; `/lt/...` 307-redirects to the unprefixed path.
+
+`localeDetection: false` — deliberately. `/` is Lithuanian for every visitor
+regardless of `Accept-Language`. With detection on (next-intl's default) an
+English browser gets 307'd from `/` to `/en`, which both contradicts
+"Lithuanian by default" and is what Google warns against: a crawler sending
+`Accept-Language: en` would never see the Lithuanian home page. Don't re-enable
+it; if the visitor's choice should be remembered, do it with an explicit
+`NEXT_LOCALE` cookie set on click, not by sniffing headers.
+
+Setup lives in:
+
+- `i18n/routing.ts` — `defineRouting`, the `locales` tuple and the `Locale` type
+- `i18n/navigation.ts` — locale-aware `Link`, `redirect`, `usePathname`,
+  `useRouter`. **Always import `Link` from here for internal paths.** `next/link`
+  drops the `/en` prefix and bounces English visitors back to Lithuanian.
+  Hash-only hrefs (`#featured`) stay plain `<a>`.
+- `i18n/request.ts` — loads `messages/<locale>.json` per request
+- `i18n/metadata.ts` — `alternatesFor(href, locale)`: the `canonical` +
+  `hreflang` block every page's `generateMetadata` must spread into `alternates`
+- `proxy.ts` — the routing middleware (Next 16 renamed the convention from
+  `middleware`). Its matcher excludes `/api` and `/studio` on purpose.
+- `messages/lt.json`, `messages/en.json` — all UI copy, mirrored key-for-key
+
+Rules:
+
+- Every page under `app/[locale]/` must `await params` and call
+  `setRequestLocale(locale)` — without it the page silently opts out of static
+  rendering. Page metadata comes from `getTranslations({ locale, namespace })`.
+- **Every page's `generateMetadata` must set `alternates: alternatesFor(href, locale)`**
+  with its own locale-independent path. That emits `rel=canonical` plus
+  `hreflang` for `lt`, `en` and `x-default` — the actual signal Google uses to
+  pair the two language versions instead of treating them as duplicates. The
+  absolute URLs come from `metadataBase` in `app/[locale]/layout.tsx`, which
+  reads `NEXT_PUBLIC_BASE_URL`, so that variable must be the real production
+  origin in prod or every canonical tag points at localhost.
+- Server components use `getTranslations`; client components use
+  `useTranslations`. Components rendered from both (`RingCard`) use the hook —
+  it works in either.
+- **UI chrome** (labels, buttons, headings, form copy) lives in
+  `messages/*.json`. **Ordered content lists** (rings, about chapters/steps/
+  values/stats) live in TypeScript keyed by locale (`Localized<T>`) with a
+  `getX(locale)` accessor, because components iterate them and depend on their
+  length. Don't move one to the other side without a reason.
+- Product **slugs are shared across locales** — one canonical URL per product,
+  and cart keys survive a language switch. Filtering matches on locale-stable
+  keys (`materialKey`), never on the translated label.
+- Prices go through `formatPrice(amount, locale)` in `lib/format.ts`:
+  `145 €` in Lithuanian, `€145` in English. Never hardcode `{price} €`.
+- Lithuanian plurals need all CLDR categories — `one`/`few`/`other` (see
+  `catalog.found`). `few` covers 2–9, so "8" is *Rasti 8 žiedai*, not *žiedų*.
+- The language switcher is `components/LanguageSwitcher.tsx`, sitting next to the
+  cart button in the navbar. Flags are inline SVG, not emoji: Windows ships no
+  flag glyphs, so 🇱🇹 would render as the letters "LT". It renders real
+  `<a href>` — a button calling `router.replace()` leaves the other locale's URL
+  nowhere in the HTML, so crawlers have nothing to follow. Hrefs come from
+  `getPathname({ href, locale })`, **not** from `<Link locale={...}>`: passing an
+  explicit `locale` to next-intl's `Link` always writes the prefix, even for the
+  default locale, which would aim the Lithuanian link at `/lt` — a URL that only
+  redirects to `/`.
+- `/studio` sits outside `[locale]` and has its own root layout with
+  `<html lang="en">`; `app/layout.tsx` is a pass-through that renders no
+  `<html>` of its own.
+
+When adding copy: add the key to **both** message files. A key present in only
+one locale throws at render time in that locale.
 
 ## Core business logic: fulfillment, not stock
 
@@ -93,31 +166,51 @@ is made to order anyway) — it just keeps the displayed message accurate.
 
 ## Project structure
 
+Note: there is **no `src/` directory** — `app/`, `components/`, `lib/`, `i18n/`,
+`messages/` and `sanity/` sit at the repo root. Entries marked *(planned)* do not
+exist yet.
+
 ```
-src/
-  app/
-    (shop)/
-      page.tsx                 # home
-      products/page.tsx        # catalog
-      products/[slug]/page.tsx # product page (size selection + fulfillment msg)
-      cart/page.tsx
-      success/page.tsx
-      cancel/page.tsx          # (or reuse /cart as cancel target)
-    api/
-      checkout/route.ts        # POST: builds Stripe Checkout Session (price from Sanity)
-      webhook/route.ts         # POST: verifies signature, flips ready->false, sends email
-    studio/[[...tool]]/page.tsx # embedded Sanity Studio
-  lib/
-    stripe.ts                  # Stripe SDK singleton
-    fulfillment.ts             # getFulfillment() — the shared business logic
-    email.ts                   # Resend order confirmation
-  sanity/
-    client.ts                  # read client + server-only write client + GROQ
-    schemaTypes/
-      product.ts
-      index.ts
-  store/                       # cart (Zustand) — planned
-  components/
+app/
+  layout.tsx                   # pass-through only — renders no <html>
+  globals.css
+  [locale]/
+    layout.tsx                 # root layout: <html lang>, fonts, providers
+    page.tsx                   # home
+    about/page.tsx
+    products/rings/page.tsx    # catalog
+    products/[slug]/page.tsx   # product page (size selection + fulfillment msg)
+    cart/page.tsx              # (planned — the drawer covers it for now)
+    success/page.tsx           # (planned)
+    cancel/page.tsx            # (planned — or reuse the cart as cancel target)
+  api/                         # (planned — outside [locale], excluded in proxy.ts)
+    checkout/route.ts          # POST: builds Stripe Checkout Session (price from Sanity)
+    webhook/route.ts           # POST: verifies signature, flips ready->false, sends email
+  studio/
+    layout.tsx                 # own root layout, <html lang="en">
+    [[...tool]]/page.tsx       # embedded Sanity Studio
+i18n/
+  routing.ts                   # locales, defaultLocale, localePrefix
+  navigation.ts                # locale-aware Link / router
+  request.ts                   # per-request message loading
+messages/
+  lt.json                      # all UI copy, mirrored key-for-key
+  en.json
+proxy.ts                       # next-intl routing middleware (Next 16 convention)
+lib/
+  rings.ts                     # mock catalog, Localized<T> + getRings(locale)
+  about.ts                     # about-page content, same pattern
+  cart.ts                      # mock cart lines + resolveCart(lines, locale, t)
+  fulfillment.ts               # getFulfillment() — the shared business logic
+  format.ts                    # formatPrice(amount, locale)
+  scroll.ts                    # useScrollEffect for the scroll-driven sections
+  stripe.ts                    # (planned) Stripe SDK singleton
+  email.ts                     # (planned) Resend order confirmation
+sanity/
+  lib/client.ts                # read client + server-only write client + GROQ
+  schemaTypes/
+store/                         # (planned) cart (Zustand)
+components/
 ```
 
 ## Sanity product schema (summary)
@@ -132,7 +225,10 @@ readySize, slug` — see `productsByIdsQuery` in `src/sanity/client.ts`.
 ## Data flow (end to end)
 
 1. Product page: customer must pick a size before "add to cart"; the page shows
-   `getFulfillment(product, size).message`.
+   `getFulfillment(product, size, t).message`, where `t` is the translator for the
+   `fulfillment` namespace. Anything that only needs to branch on the state (the
+   webhook, Stripe metadata) uses `getFulfillmentStatus(product, size)` instead,
+   which needs no translator.
 2. Cart key is `productId + size` (same ring in two sizes = two line items).
 3. Checkout: client POSTs `{ items: [{ id, size, qty }] }` to `/api/checkout`.
 4. Server fetches products from Sanity, builds Stripe line items with prices from
@@ -184,9 +280,10 @@ stripe trigger checkout.session.completed   # send a test event
 
 - TypeScript throughout; avoid `any`.
 - Keep server-only code (Stripe, write tokens) out of client components.
-- UI copy in Lithuanian; code/comments may be English.
+- No hardcoded UI copy — every user-visible string goes through next-intl, in
+  both `messages/lt.json` and `messages/en.json`. Code/comments stay English.
 - Prefer Server Components + GROQ for data fetching; client components only for
-  interactivity (cart, size selection).
+  interactivity (cart, size selection, language switch).
 
 ## TODO / not yet built
 
@@ -200,6 +297,16 @@ stripe trigger checkout.session.completed   # send a test event
       exception to the EU 14-day withdrawal right; verify with VVTAT guidance)
 - [ ] Cookie consent + analytics
 - [ ] Stripe Tax (EU VAT) before launch
+- [ ] Localise Sanity product content once the catalog moves off `lib/rings.ts`
+      (internationalised array fields, or `title_lt` / `title_en`), and translate
+      the Stripe line-item descriptions + Resend email per locale
+- [ ] Set `NEXT_PUBLIC_BASE_URL=https://mirgalab.com` in the production
+      environment — `canonical` / `hreflang` tags are built from it
+- [ ] `sitemap.ts` listing both locales per route (hreflang is in place; a
+      sitemap is the other half of getting `/en` discovered)
+- [ ] Optionally remember the visitor's locale choice via an explicit
+      `NEXT_LOCALE` cookie set on switch — never by `Accept-Language` sniffing,
+      see "Internationalisation"
 
 ## Project facts to confirm / fill in
 

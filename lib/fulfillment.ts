@@ -9,35 +9,68 @@ export type Fulfillment = {
 };
 
 /**
+ * A next-intl translator scoped to the `fulfillment` namespace — satisfied by
+ * both `useTranslations("fulfillment")` (client) and
+ * `await getTranslations("fulfillment")` (server).
+ */
+export type FulfillmentTranslator = (
+  key: string,
+  values?: Record<string, string>,
+) => string;
+
+/**
+ * Which of the three states applies. Locale-independent, so anything that only
+ * needs to branch on the state (badges, Stripe metadata, the webhook deciding
+ * whether to flip `ready`) can use this without dragging translations in.
+ */
+export function getFulfillmentStatus(
+  product: { ready: boolean; readySize?: string },
+  chosenSize: string,
+): FulfillmentStatus {
+  if (product.ready && product.readySize === chosenSize) return "ready_exact";
+  if (product.ready) return "ready_resize";
+  return "made_to_order";
+}
+
+/**
  * Single source of truth for the customer-facing fulfillment message.
  * Used by the product page, the cart, and (later) the checkout route so the
  * same wording reaches Stripe metadata and the confirmation email.
  *
  * Nothing here gates ordering — every piece is always orderable.
+ *
+ * Copy lives in `messages/<locale>.json` under `fulfillment`; the caller passes
+ * its translator in so this stays one function rather than one per locale.
  */
 export function getFulfillment(
   product: { ready: boolean; readySize?: string },
   chosenSize: string,
+  t: FulfillmentTranslator,
 ): Fulfillment {
-  if (product.ready && product.readySize === chosenSize) {
+  const status = getFulfillmentStatus(product, chosenSize);
+
+  if (status === "ready_exact") {
     return {
-      status: "ready_exact",
-      message: "Šis žiedas jau paruoštas — išsiunčiame per 1–2 darbo dienas.",
-      short: "Išsiunčiame per 1–2 d. d.",
+      status,
+      message: t("readyExact.message"),
+      short: t("readyExact.short"),
     };
   }
 
-  if (product.ready) {
+  if (status === "ready_resize") {
     return {
-      status: "ready_resize",
-      message: `Turime paruoštą ${product.readySize} dydžio vienetą — pakeisime į ${chosenSize}, tai užtrunka 1–2 darbo dienas.`,
-      short: "Dydžio keitimas 1–2 d. d.",
+      status,
+      message: t("readyResize.message", {
+        readySize: product.readySize ?? "",
+        chosenSize,
+      }),
+      short: t("readyResize.short"),
     };
   }
 
   return {
-    status: "made_to_order",
-    message: "Gaminama pagal užsakymą — paruošimas trunka 1–2 savaites.",
-    short: "Gaminama 1–2 sav.",
+    status,
+    message: t("madeToOrder.message"),
+    short: t("madeToOrder.short"),
   };
 }

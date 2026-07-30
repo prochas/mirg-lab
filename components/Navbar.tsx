@@ -1,24 +1,28 @@
 // Floating nav "pill" — server component, no JS.
 // Hover states are pure CSS.
 
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import CartButton from "./cart/CartButton";
+import LanguageSwitcher from "./LanguageSwitcher";
 
-// Absolute hrefs so these still resolve from /products/* pages.
-const links = [
-  { label: "Shop", href: "/#categories" },
-  { label: "New In", href: "/#featured" },
-  { label: "Story", href: "/about" },
-];
+export default async function Navbar() {
+  const t = await getTranslations("nav");
 
-const jewelryCategories = [
-  { label: "Žiedai", href: "/products/rings", soon: false },
-  { label: "Grandinėlės", href: "#", soon: true },
-  { label: "Apyrankės", href: "#", soon: true },
-  { label: "Auskarai", href: "#", soon: true },
-];
+  // Absolute hrefs so these still resolve from /products/* pages.
+  const links = [
+    { label: t("shop"), href: "/#categories" },
+    { label: t("newIn"), href: "/#featured" },
+    { label: t("story"), href: "/about" },
+  ];
 
-export default function Navbar() {
+  const jewelryCategories = [
+    { label: t("categories.rings"), href: "/products/rings", soon: false },
+    { label: t("categories.chains"), href: "#", soon: true },
+    { label: t("categories.bracelets"), href: "#", soon: true },
+    { label: t("categories.earrings"), href: "#", soon: true },
+  ];
+
   return (
     <header
       className="fixed top-[18px] left-1/2 -translate-x-1/2 z-[1000]
@@ -36,7 +40,7 @@ export default function Navbar() {
       </Link>
 
       {/* Navigation links */}
-      <nav aria-label="Pagrindinis meniu" className="flex items-center gap-[clamp(14px,2vw,26px)] max-md:hidden">
+      <nav aria-label={t("menuLabel")} className="flex items-center gap-[clamp(14px,2vw,26px)] max-md:hidden">
         {links.map((l) => (
           <Link
             key={l.label}
@@ -55,7 +59,7 @@ export default function Navbar() {
             className="flex items-center gap-1.5 text-[12.5px] font-semibold uppercase tracking-[0.09em]
                        text-white/80 transition-colors duration-300 group-hover:text-white"
           >
-            Papuošalai
+            {t("jewelry")}
             <svg
               width="10"
               height="10"
@@ -98,7 +102,7 @@ export default function Navbar() {
                   >
                     {c.label}
                     <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/30">
-                      Netrukus
+                      {t("soon")}
                     </span>
                   </span>
                 ) : (
@@ -120,7 +124,7 @@ export default function Navbar() {
       <div className="flex items-center gap-1.5">
         {/* Search */}
         <button
-          aria-label="Search"
+          aria-label={t("search")}
           className="group flex h-10 w-10 items-center justify-center rounded-[11px]
                      text-white transition-colors duration-300 hover:bg-white/90 hover:text-[#111]"
         >
@@ -129,6 +133,10 @@ export default function Navbar() {
             <path d="M21 21l-4.3-4.3" />
           </svg>
         </button>
+
+        {/* Language — kept next to the cart so both live in the same icon row */}
+        <LanguageSwitcher />
+        <span aria-hidden className="h-5 w-px bg-white/20" />
 
         {/* Cart — client component so <Navbar> itself stays server-rendered */}
         <CartButton />

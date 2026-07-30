@@ -1,4 +1,9 @@
-import { getFulfillment, type Fulfillment } from "./fulfillment";
+import type { Locale } from "@/i18n/routing";
+import {
+  getFulfillment,
+  type Fulfillment,
+  type FulfillmentTranslator,
+} from "./fulfillment";
 import { getRingBySlug, type RingProduct } from "./rings";
 
 // UI mock only — there is no cart state yet. When the real cart lands it will
@@ -20,16 +25,23 @@ export type CartItem = CartLine & {
   lineTotal: number;
 };
 
-/** Resolves mock lines against the catalog for display. No state, no mutation. */
-export function resolveCart(lines: CartLine[]): CartItem[] {
+/**
+ * Resolves mock lines against the catalog for display. No state, no mutation.
+ * `t` is a translator scoped to the `fulfillment` namespace.
+ */
+export function resolveCart(
+  lines: CartLine[],
+  locale: Locale,
+  t: FulfillmentTranslator,
+): CartItem[] {
   return lines.flatMap((line) => {
-    const product = getRingBySlug(line.slug);
+    const product = getRingBySlug(line.slug, locale);
     if (!product) return [];
     return [
       {
         ...line,
         product,
-        fulfillment: getFulfillment(product, line.size),
+        fulfillment: getFulfillment(product, line.size, t),
         lineTotal: product.price * line.qty,
       },
     ];
@@ -40,6 +52,7 @@ export function cartSubtotal(items: CartItem[]) {
   return items.reduce((sum, i) => sum + i.lineTotal, 0);
 }
 
-export function cartCount(items: CartItem[]) {
-  return items.reduce((sum, i) => sum + i.qty, 0);
+/** Badge count — reads the lines directly so callers needn't resolve the catalog. */
+export function cartCount(lines: CartLine[]) {
+  return lines.reduce((sum, l) => sum + l.qty, 0);
 }

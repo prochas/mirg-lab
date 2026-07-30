@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { clamp, useScrollEffect } from "@/lib/scroll";
-import { steps } from "@/lib/about";
+import { getSteps } from "@/lib/about";
+import type { Locale } from "@/i18n/routing";
 
 // Vertical scroll drives horizontal movement: the section is tall, the inner
 // panel is pinned, and the track slides sideways across it.
 export default function ProcessTrack() {
+  const t = useTranslations("about.process");
+  const steps = getSteps(useLocale() as Locale);
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
@@ -51,10 +55,10 @@ export default function ProcessTrack() {
         {/* Heading */}
         <div className="px-[clamp(18px,4vw,56px)]">
           <div className="mb-[clamp(16px,1.6vw,22px)] text-[13px] font-semibold uppercase tracking-[0.12em] text-[#ff4d3d]">
-            03 / Kaip gimsta žiedas
+            {t("eyebrow")}
           </div>
           <h2 className="m-0 mb-[clamp(28px,4vw,52px)] font-[family-name:var(--font-anton)] font-normal uppercase leading-[0.95] tracking-[-0.01em] text-[clamp(1.9rem,5vw,3.8rem)]">
-            Nuo Eskizo Iki Dėžutės
+            {t("heading")}
           </h2>
         </div>
 

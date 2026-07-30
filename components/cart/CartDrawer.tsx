@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
 import { useCartUI } from "./CartUIProvider";
 import { lockScroll, unlockScroll } from "@/components/LenisProvider";
+import { formatPrice } from "@/lib/format";
 import {
   cartCount,
   cartSubtotal,
@@ -17,11 +20,14 @@ const payments = ["VISA", "MASTERCARD", "AMEX", "PAYPAL"];
 // Every control below the open/close pair is intentionally inert — this is a
 // UI pass only, so quantity steppers, remove and checkout do nothing yet.
 export default function CartDrawer() {
+  const t = useTranslations("cart");
+  const tFulfillment = useTranslations("fulfillment");
+  const locale = useLocale() as Locale;
   const { open, closeCart } = useCartUI();
 
-  const items = resolveCart(mockCart);
+  const items = resolveCart(mockCart, locale, tFulfillment);
   const subtotal = cartSubtotal(items);
-  const count = cartCount(items);
+  const count = cartCount(mockCart);
   const freeShipping = subtotal >= FREE_SHIPPING_FROM;
 
   useEffect(() => {
@@ -52,7 +58,7 @@ export default function CartDrawer() {
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="Pirkinių krepšelis"
+        aria-label={t("dialogLabel")}
         /* The shadow is applied only while open. Parked off-screen it would
            still cast 60px of blur back across the viewport's right edge. */
         className={`fixed right-0 top-0 z-[1600] flex h-dvh w-full max-w-[92vw] flex-col bg-[#f7f6f2] transition-[transform,box-shadow] duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)] sm:w-[440px] ${
@@ -65,7 +71,7 @@ export default function CartDrawer() {
         <div className="flex flex-none items-center justify-between gap-4 border-b border-[#111]/10 px-[clamp(18px,4vw,26px)] py-5">
           <div className="flex items-baseline gap-2.5">
             <h2 className="m-0 font-[family-name:var(--font-anton)] text-[1.5rem] font-normal uppercase leading-none tracking-[-0.01em] text-[#111]">
-              Krepšelis
+              {t("title")}
             </h2>
             <span className="text-[13px] font-semibold text-[#7a7a76]">
               ({count})
@@ -75,7 +81,7 @@ export default function CartDrawer() {
           <button
             type="button"
             onClick={closeCart}
-            aria-label="Uždaryti krepšelį"
+            aria-label={t("close")}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-[#111]/20 text-[#111] transition-colors duration-300 hover:border-[#111] hover:bg-[#111] hover:text-white"
           >
             <svg
@@ -96,18 +102,17 @@ export default function CartDrawer() {
           /* ── Empty state ── */
           <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
             <div className="font-[family-name:var(--font-anton)] text-[1.4rem] uppercase text-[#111]">
-              Krepšelis tuščias
+              {t("empty.title")}
             </div>
             <p className="mt-2.5 max-w-[30ch] text-[14px] font-light text-[#7a7a76]">
-              Dar nieko nepasirinkote. Žiedai gaminami po vieną — pradėkite nuo
-              vieno.
+              {t("empty.body")}
             </p>
             <Link
               href="/products/rings"
               onClick={closeCart}
               className="mt-6 rounded-full bg-[#111] px-7 py-3.5 text-[12px] font-semibold uppercase tracking-[0.1em] text-white no-underline transition-colors duration-300 hover:bg-[#ff4d3d]"
             >
-              Žiūrėti žiedus
+              {t("empty.cta")}
             </Link>
           </div>
         ) : (
@@ -121,8 +126,10 @@ export default function CartDrawer() {
               }`}
             >
               {freeShipping
-                ? "✓ Nemokamas pristatymas Lietuvoje"
-                : `Iki nemokamo pristatymo liko ${FREE_SHIPPING_FROM - subtotal} €`}
+                ? t("shipping.free")
+                : t("shipping.remaining", {
+                    amount: formatPrice(FREE_SHIPPING_FROM - subtotal, locale),
+                  })}
             </div>
 
             {/* ── Line items ── */}
@@ -134,9 +141,7 @@ export default function CartDrawer() {
               {items.map((item) => (
                 <div
                   key={`${item.slug}-${item.size}`}
-                  /* No `last:border-b-0` — the coupon block below is the real
-                     :last-child, so this row always needs its separator. */
-                  className="flex gap-4 border-b border-[#111]/10 py-5"
+                  className="flex gap-4 border-b border-[#111]/10 py-5 last:border-b-0"
                 >
                   {/* Thumbnail */}
                   <Link
@@ -164,14 +169,15 @@ export default function CartDrawer() {
                           {item.product.title}
                         </Link>
                         <div className="mt-1.5 text-[12px] text-[#7a7a76]">
-                          {item.product.material} · Dydis {item.size}
+                          {item.product.material} ·{" "}
+                          {t("sizeLabel", { size: item.size })}
                         </div>
                       </div>
 
                       {/* Remove */}
                       <button
                         type="button"
-                        aria-label={`Pašalinti ${item.product.title}`}
+                        aria-label={t("remove", { title: item.product.title })}
                         className="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[#7a7a76] transition-colors duration-300 hover:bg-[#111]/[0.06] hover:text-[#ff4d3d]"
                       >
                         <svg
@@ -209,7 +215,7 @@ export default function CartDrawer() {
                       <div className="flex items-center gap-1 rounded-full border border-[#111]/20 p-1">
                         <button
                           type="button"
-                          aria-label="Sumažinti kiekį"
+                          aria-label={t("decrease")}
                           className="flex h-7 w-7 items-center justify-center rounded-full text-[16px] leading-none text-[#111] transition-colors duration-200 hover:bg-[#111] hover:text-white"
                         >
                           −
@@ -219,7 +225,7 @@ export default function CartDrawer() {
                         </span>
                         <button
                           type="button"
-                          aria-label="Padidinti kiekį"
+                          aria-label={t("increase")}
                           className="flex h-7 w-7 items-center justify-center rounded-full text-[16px] leading-none text-[#111] transition-colors duration-200 hover:bg-[#111] hover:text-white"
                         >
                           +
@@ -227,70 +233,45 @@ export default function CartDrawer() {
                       </div>
 
                       <div className="text-[15px] font-semibold text-[#111]">
-                        {item.lineTotal} €
+                        {formatPrice(item.lineTotal, locale)}
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
-
-              {/* Discount code — presentational only, nothing is validated or
-                  applied. The field is typeable so the filled state is visible. */}
-              <div className="mb-2 pt-5">
-                <label
-                  htmlFor="cart-coupon"
-                  className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7a7a76]"
-                >
-                  Nuolaidos kodas
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    id="cart-coupon"
-                    name="coupon"
-                    type="text"
-                    autoComplete="off"
-                    placeholder="Įveskite kodą"
-                    className="min-w-0 flex-1 rounded-[10px] border border-[#111]/12 bg-white px-4 py-3 text-[14px] text-[#111] placeholder:text-[#aaa] transition-colors duration-300 focus:border-[#111]/40 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    className="flex-none rounded-[10px] border border-[#111]/20 px-5 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111] transition-colors duration-300 hover:border-[#111] hover:bg-[#111] hover:text-white"
-                  >
-                    Taikyti
-                  </button>
-                </div>
-              </div>
             </div>
 
             {/* ── Footer ── */}
             <div className="flex-none border-t border-[#111]/10 bg-[#f7f6f2] px-[clamp(18px,4vw,26px)] py-5">
               <div className="flex items-center justify-between text-[14px] text-[#3a3a38]">
-                <span>Tarpinė suma</span>
-                <span>{subtotal} €</span>
+                <span>{t("subtotal")}</span>
+                <span>{formatPrice(subtotal, locale)}</span>
               </div>
               <div className="mt-2 flex items-center justify-between text-[14px] text-[#3a3a38]">
-                <span>Pristatymas</span>
-                <span>{freeShipping ? "Nemokamas" : "Skaičiuojama"}</span>
+                <span>{t("shippingLabel")}</span>
+                <span>
+                  {freeShipping ? t("shippingFree") : t("shippingCalculated")}
+                </span>
               </div>
 
               <div className="mt-3.5 flex items-baseline justify-between border-t border-[#111]/10 pt-3.5">
                 <span className="font-[family-name:var(--font-anton)] text-[1.15rem] uppercase leading-none text-[#111]">
-                  Iš viso
+                  {t("total")}
                 </span>
                 <span className="font-[family-name:var(--font-anton)] text-[1.5rem] leading-none text-[#111]">
-                  {subtotal} €
+                  {formatPrice(subtotal, locale)}
                 </span>
               </div>
 
               <p className="mt-1.5 text-right text-[11px] text-[#7a7a76]">
-                Mokesčiai apskaičiuojami atsiskaitant
+                {t("taxNote")}
               </p>
 
               <button
                 type="button"
                 className="group mt-4 flex w-full items-center justify-center gap-3 rounded-[10px] bg-[#111] py-4 text-[13px] font-semibold uppercase tracking-[0.1em] text-white transition-[background-color,box-shadow] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-[#ff4d3d] hover:shadow-[0_4px_24px_rgba(255,77,61,0.35)]"
               >
-                Apmokėti — {subtotal} €
+                {t("checkout", { total: formatPrice(subtotal, locale) })}
                 <span className="inline-block transition-transform duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-x-1.5">
                   →
                 </span>
@@ -301,7 +282,7 @@ export default function CartDrawer() {
                 onClick={closeCart}
                 className="mt-2.5 w-full text-center text-[12px] font-semibold uppercase tracking-[0.08em] text-[#7a7a76] transition-colors duration-300 hover:text-[#111]"
               >
-                Tęsti apsipirkimą
+                {t("continue")}
               </button>
 
               {/* Trust row */}
@@ -320,7 +301,7 @@ export default function CartDrawer() {
                     <rect x="4" y="10" width="16" height="10" rx="2" />
                     <path d="M8 10V7a4 4 0 0 1 8 0v3" />
                   </svg>
-                  Saugus mokėjimas per Stripe
+                  {t("secure")}
                 </span>
               </div>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">

@@ -1,16 +1,44 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { hasLocale } from "next-intl";
+import { notFound } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RingsCatalog from "@/components/RingsCatalog";
-import { rings } from "@/lib/rings";
+import { alternatesFor } from "@/i18n/metadata";
+import { routing } from "@/i18n/routing";
+import { getRings } from "@/lib/rings";
 
-export const metadata: Metadata = {
-  title: "Žiedai — mirga.lab",
-  description: "Rankų darbo žiedai, gaminami mažomis partijomis.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata.rings" });
 
-export default function RingsCategoryPage() {
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: hasLocale(routing.locales, locale)
+      ? alternatesFor("/products/rings", locale)
+      : undefined,
+  };
+}
+
+export default async function RingsCategoryPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
+
+  const t = await getTranslations("catalog");
+  const rings = getRings(locale);
+
   return (
     <>
       <div className="noise" />
@@ -35,16 +63,15 @@ export default function RingsCategoryPage() {
                 href="/"
                 className="text-white/60 no-underline hover:text-white"
               >
-                Pradžia
+                {t("breadcrumbHome")}
               </Link>{" "}
-              / Žiedai
+              / {t("title")}
             </div>
             <h1 className="m-0 font-[family-name:var(--font-anton)] font-normal uppercase leading-[0.95] tracking-[-0.01em] text-white text-[clamp(2.4rem,7vw,5rem)]">
-              Žiedai
+              {t("title")}
             </h1>
             <p className="mt-3.5 max-w-[46ch] text-[15px] font-light text-white/80">
-              Kiekvienas žiedas kalamas ranka, mažomis partijomis. Jokių dviejų
-              nėra visiškai vienodų.
+              {t("intro")}
             </p>
           </div>
         </section>

@@ -1,3 +1,8 @@
+import type { Metadata } from "next";
+import { hasLocale } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { alternatesFor } from "@/i18n/metadata";
+import { routing } from "@/i18n/routing";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Categories from "@/components/Categories";
@@ -7,8 +12,33 @@ import Contacts from "@/components/Contacts";
 import Footer from "@/components/Footer";
 import NoiseLogoController from "@/components/NoiseLogoController";
 
-// Fully static, server-rendered. No client JavaScript anywhere.
-export default function Home() {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata.home" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: hasLocale(routing.locales, locale)
+      ? alternatesFor("/", locale)
+      : undefined,
+  };
+}
+
+// Fully static, server-rendered. The only client JS is the cart drawer, the
+// language switcher and the contact form.
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return (
     <>
       <div className="noise" />

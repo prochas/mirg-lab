@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { hasLocale } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Accordion from "@/components/Accordion";
@@ -8,36 +10,66 @@ import ProductGallery from "@/components/ProductGallery";
 import ProductPanel from "@/components/ProductPanel";
 import RingCard from "@/components/RingCard";
 import ScrollReveal from "@/components/ScrollReveal";
-import { getRelatedRings, getRingBySlug, rings } from "@/lib/rings";
+import { alternatesFor } from "@/i18n/metadata";
+import { routing } from "@/i18n/routing";
+import { formatPrice } from "@/lib/format";
+import { getRelatedRings, getRingBySlug, RING_SLUGS } from "@/lib/rings";
 
 export function generateStaticParams() {
-  return rings.map((r) => ({ slug: r.slug }));
+  return RING_SLUGS.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const ring = getRingBySlug(slug);
+  const { locale, slug } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
+
+  const ring = getRingBySlug(slug, locale);
   if (!ring) return {};
+
+  const t = await getTranslations({ locale, namespace: "metadata.product" });
+
   return {
-    title: `${ring.title} — mirga.lab`,
+    title: t("title", { title: ring.title }),
     description: ring.description,
+    // Slugs are shared across locales, so the same path works for both.
+    alternates: alternatesFor(`/products/${slug}`, locale),
   };
 }
+
+// Section titles + bullet counts are fixed by the message files.
+const DELIVERY_KEYS = ["1", "2", "3"] as const;
+const CARE_KEYS = ["1", "2", "3", "4"] as const;
 
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
-  const ring = getRingBySlug(slug);
+  const { locale, slug } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
+
+  const ring = getRingBySlug(slug, locale);
   if (!ring) notFound();
 
-  const related = getRelatedRings(slug, 4);
+  const t = await getTranslations("product");
+  const related = getRelatedRings(slug, locale, 4);
+
+  const sections = [
+    { title: t("spec"), items: ring.details },
+    {
+      title: t("delivery.title"),
+      items: DELIVERY_KEYS.map((k) => t(`delivery.items.${k}`)),
+    },
+    {
+      title: t("care.title"),
+      items: CARE_KEYS.map((k) => t(`care.items.${k}`)),
+    },
+  ];
 
   return (
     <>
@@ -52,14 +84,14 @@ export default async function ProductPage({
               href="/"
               className="text-[#7a7a76] no-underline hover:text-[#111]"
             >
-              Pradžia
+              {t("breadcrumbHome")}
             </Link>{" "}
             /{" "}
             <Link
               href="/products/rings"
               className="text-[#7a7a76] no-underline hover:text-[#111]"
             >
-              Žiedai
+              {t("breadcrumbRings")}
             </Link>{" "}
             / <span className="text-[#111]">{ring.title}</span>
           </div>
@@ -80,7 +112,7 @@ export default async function ProductPage({
 
             <div className="mt-3 flex items-center gap-3">
               <span className="font-[family-name:var(--font-anton)] text-[1.6rem] leading-none text-[#111]">
-                {ring.price} €
+                {formatPrice(ring.price, locale)}
               </span>
               <span className="text-[13px] text-[#7a7a76]">
                 {ring.material}
@@ -97,26 +129,7 @@ export default async function ProductPage({
 
             {/* Details */}
             <div className="mt-[clamp(22px,3vw,32px)]">
-              {[
-                { title: "Specifikacija", items: ring.details },
-                {
-                  title: "Pristatymas",
-                  items: [
-                    "Lietuvoje — 2–3 d. d., nemokamai nuo 100 €",
-                    "ES šalyse — 4–7 d. d.",
-                    "Siunčiame registruotu paštu su sekimo numeriu",
-                  ],
-                },
-                {
-                  title: "Priežiūra ir grąžinimas",
-                  items: [
-                    "Valykite minkšta šluoste, be abrazyvų",
-                    "Nusiimkite prieš sportą ir dušą",
-                    "Paruoštus žiedus galima grąžinti per 14 d.",
-                    "Pagal užsakymą gaminti žiedai negrąžinami",
-                  ],
-                },
-              ].map((section) => (
+              {sections.map((section) => (
                 <Accordion
                   key={section.title}
                   title={section.title}
@@ -135,17 +148,17 @@ export default async function ProductPage({
                 {/* Roomier than the usual mb-2.5 — Anton's caron/macron on
                     "ŠŪ" reach above cap height and crowd the eyebrow. */}
                 <div className="mb-[clamp(16px,1.6vw,22px)] text-[13px] font-semibold uppercase tracking-[0.12em] text-[#ff4d3d]">
-                  Taip pat tiks
+                  {t("related.eyebrow")}
                 </div>
                 <h2 className="m-0 font-[family-name:var(--font-anton)] font-normal uppercase leading-[0.95] tracking-[-0.01em] text-[clamp(1.8rem,4.5vw,3.4rem)]">
-                  Panašūs Žiedai
+                  {t("related.heading")}
                 </h2>
               </div>
               <Link
                 href="/products/rings"
                 className="rounded-full border border-[#111]/20 px-4 py-[9px] text-[12px] font-semibold uppercase tracking-[0.08em] text-[#111] no-underline transition-colors duration-300 hover:border-[#111] hover:bg-[#111] hover:text-white"
               >
-                Visi žiedai
+                {t("related.all")}
               </Link>
             </ScrollReveal>
 
