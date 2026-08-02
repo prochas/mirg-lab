@@ -20,6 +20,18 @@
       "title": "D.U.K. — mirga.lab",
       "description": "Atsakymai apie dydžius, gaminimo laiką, pristatymą, priežiūrą ir grąžinimą."
     },
+    "terms": {
+      "title": "Pirkimo–pardavimo taisyklės — mirga.lab",
+      "description": "Pirkimo–pardavimo sąlygos, taikomos perkant mirga.lab internetinėje parduotuvėje."
+    },
+    "privacy": {
+      "title": "Privatumo politika — mirga.lab",
+      "description": "Kaip renkame, naudojame ir saugome Jūsų asmens duomenis."
+    },
+    "returns": {
+      "title": "Grąžinimo taisyklės — mirga.lab",
+      "description": "Kaip ir kada galima grąžinti ar pakeisti žiedą."
+    },
     "product": {
       "title": "{title} — mirga.lab"
     },
@@ -174,33 +186,19 @@
   "footer": {
     "tagline": "Rankų darbo žiedai ir pakabukai, gaminami mažomis partijomis tiems, kurie nenori būti kaip visi.",
     "columns": {
-      "1": {
-        "title": "Parduotuvė",
-        "links": {
-          "1": "Žiedai",
-          "2": "Pakabukai",
-          "3": "Rinkiniai",
-          "4": "Dovanų kuponai"
-        }
-      },
-      "2": {
-        "title": "Dirbtuvė",
-        "links": {
-          "1": "Mūsų istorija",
-          "2": "Individualūs darbai",
-          "3": "Priežiūra",
-          "4": "Dydžiai"
-        }
-      },
-      "3": {
-        "title": "Kontaktai",
-        "links": {
-          "1": "Instagram",
-          "2": "Naujienlaiškis",
-          "3": "Partneriai",
-          "4": "Susisiekti"
-        }
-      }
+      "shop": { "title": "Parduotuvė" },
+      "studio": { "title": "Dirbtuvė" },
+      "contact": { "title": "Kontaktai" },
+      "legal": { "title": "Teisinė informacija" }
+    },
+    "links": {
+      "rings": "Žiedai",
+      "about": "Mūsų istorija",
+      "faq": "D.U.K.",
+      "contacts": "Susisiekti",
+      "terms": "Pirkimo taisyklės",
+      "privacy": "Privatumo politika",
+      "returns": "Grąžinimas"
     },
     "credit": {
       "prefix": "© 2026 mirga.lab — Kūrė ",
@@ -225,6 +223,27 @@
       "body": "Parašykite — atsakome per vieną darbo dieną. Geriau paklausti prieš užsakant, nei spėlioti dėl dydžio.",
       "button": "Susisiekti"
     }
+  },
+
+  "termsPage": {
+    "breadcrumbHome": "Pradžia",
+    "title": "Pirkimo taisyklės",
+    "intro": "Sąlygos, taikomos perkant mirga.lab internetinėje parduotuvėje.",
+    "updated": "Paskutinį kartą atnaujinta {date}"
+  },
+
+  "privacyPage": {
+    "breadcrumbHome": "Pradžia",
+    "title": "Privatumo politika",
+    "intro": "Kaip renkame, naudojame ir saugome Jūsų asmens duomenis.",
+    "updated": "Paskutinį kartą atnaujinta {date}"
+  },
+
+  "returnsPage": {
+    "breadcrumbHome": "Pradžia",
+    "title": "Grąžinimas ir keitimas",
+    "intro": "Kaip ir kada galima grąžinti ar pakeisti žiedą — įskaitant išimtį pagal užsakymą pagamintiems žiedams.",
+    "updated": "Paskutinį kartą atnaujinta {date}"
   },
 
   "catalog": {
@@ -309,6 +328,13 @@
       "link": "Parašykite mums",
       "suffix": " — padėsime pasirinkti."
     }
+  },
+
+  "cookieNotice": {
+    "label": "Slapukų pranešimas",
+    "text": "Naudojame tik būtiną naršyklės atmintį krepšeliui išsaugoti ir privatumą tausojančią, slapukų nenaudojančią lankomumo analitiką.",
+    "link": "Privatumo politika",
+    "accept": "Supratau"
   },
 
   "cart": {

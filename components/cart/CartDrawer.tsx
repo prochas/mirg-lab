@@ -173,7 +173,7 @@ export default function CartDrawer() {
       <div
         onClick={closeCart}
         aria-hidden={!open}
-        className={`fixed inset-0 z-[1500] bg-[#111]/40 backdrop-blur-xs transition-[opacity,visibility] duration-[400ms] ease-out ${
+        className={`fixed inset-0 z-[1500] bg-[#111]/40 backdrop-blur-xs transition-[opacity,visibility] duration-[650ms] ease-out ${
           open ? "visible opacity-100" : "invisible opacity-0"
         }`}
       />
@@ -184,7 +184,7 @@ export default function CartDrawer() {
         aria-label={t("dialogLabel")}
         /* The shadow is applied only while open. Parked off-screen it would
            still cast 60px of blur back across the viewport's right edge. */
-        className={`fixed right-0 top-0 z-[1600] flex h-dvh w-full max-w-[92vw] flex-col bg-[#fdfdfd] transition-[transform,box-shadow] duration-[420ms] ease-[cubic-bezier(0.16,1,0.3,1)] sm:w-[440px] ${
+        className={`fixed right-0 top-0 z-[1600] flex h-dvh w-full max-w-[92vw] flex-col bg-[#fdfdfd] transition-[transform,box-shadow] duration-[850ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] sm:w-[440px] ${
           open
             ? "translate-x-0 shadow-[-24px_0_60px_rgba(0,0,0,0.25)]"
             : "translate-x-full shadow-none"

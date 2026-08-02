@@ -47,6 +47,11 @@ function rate(
         minimum: { unit: "business_day" as const, value: days.min },
         maximum: { unit: "business_day" as const, value: days.max },
       },
+      // Matches the line items: this amount is what's charged regardless of
+      // the buyer's EU country. With Stripe Tax on, VAT is broken out of it
+      // rather than added on top — see the `automatic_tax` note in
+      // app/api/checkout/route.ts.
+      tax_behavior: "inclusive" as const,
     },
   };
 }

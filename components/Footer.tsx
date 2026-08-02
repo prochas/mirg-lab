@@ -1,11 +1,8 @@
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { FOOTER_COLUMNS } from "@/lib/nav";
 
 const payments = ["VISA", "MASTERCARD", "AMEX", "PAYPAL"];
-
-// Column and link counts are fixed by the message files — keyed 1..3 and 1..4
-// so each string stays addressable without an array cast.
-const COLUMN_KEYS = ["1", "2", "3"] as const;
-const LINK_KEYS = ["1", "2", "3", "4"] as const;
 
 export default async function Footer() {
   const t = await getTranslations("footer");
@@ -26,20 +23,20 @@ export default async function Footer() {
           </p>
         </div>
 
-        {COLUMN_KEYS.map((col) => (
-          <div key={col}>
+        {FOOTER_COLUMNS.map((col) => (
+          <div key={col.key}>
             <div className="mb-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#7a7a76]">
-              {t(`columns.${col}.title`)}
+              {t(`columns.${col.key}.title`)}
             </div>
             <div className="flex flex-col gap-[11px]">
-              {LINK_KEYS.map((link) => (
-                <a
-                  key={link}
-                  href="#"
+              {col.links.map((link) => (
+                <Link
+                  key={link.key}
+                  href={link.href}
                   className="text-[15px] text-[#111] no-underline transition-colors duration-300 hover:text-[#ff4d3d]"
                 >
-                  {t(`columns.${col}.links.${link}`)}
-                </a>
+                  {t(`links.${link.key}`)}
+                </Link>
               ))}
             </div>
           </div>

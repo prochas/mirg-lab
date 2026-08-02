@@ -21,3 +21,37 @@ export const JEWELRY_CATEGORIES = [
   { key: "bracelets", href: "#", soon: true },
   { key: "earrings", href: "#", soon: true },
 ] as const;
+
+/**
+ * Footer link groups, consumed by `Footer`. Each column's `title` key indexes
+ * `footer.columns.<key>.title` and each link's `key` indexes
+ * `footer.links.<key>` — same flat-lookup shape as `NAV_LINKS`.
+ *
+ * Real routes only, same rule as `NAV_LINKS` — no placeholder columns for
+ * pages that don't exist yet (Pendants, Stacks, Newsletter, Stockists, ...).
+ */
+export const FOOTER_COLUMNS = [
+  {
+    key: "shop",
+    links: [{ key: "rings", href: "/products/rings" }],
+  },
+  {
+    key: "studio",
+    links: [
+      { key: "about", href: "/about" },
+      { key: "faq", href: "/faq" },
+    ],
+  },
+  {
+    key: "contact",
+    links: [{ key: "contacts", href: "/contacts" }],
+  },
+  {
+    key: "legal",
+    links: [
+      { key: "terms", href: "/terms" },
+      { key: "privacy", href: "/privacy" },
+      { key: "returns", href: "/returns" },
+    ],
+  },
+] as const;

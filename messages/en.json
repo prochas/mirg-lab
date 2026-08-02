@@ -20,6 +20,18 @@
       "title": "FAQ — mirga.lab",
       "description": "Answers on sizing, making times, delivery, care and returns."
     },
+    "terms": {
+      "title": "Terms of Sale — mirga.lab",
+      "description": "The terms and conditions that apply when you buy from the mirga.lab online shop."
+    },
+    "privacy": {
+      "title": "Privacy Policy — mirga.lab",
+      "description": "How we collect, use and protect your personal data."
+    },
+    "returns": {
+      "title": "Returns Policy — mirga.lab",
+      "description": "How and when a ring can be returned or exchanged."
+    },
     "product": {
       "title": "{title} — mirga.lab"
     },
@@ -174,33 +186,19 @@
   "footer": {
     "tagline": "Handmade rings and pendants, made in small batches for people who'd rather not match everyone else.",
     "columns": {
-      "1": {
-        "title": "Shop",
-        "links": {
-          "1": "Rings",
-          "2": "Pendants",
-          "3": "Stacks",
-          "4": "Gift cards"
-        }
-      },
-      "2": {
-        "title": "Studio",
-        "links": {
-          "1": "Our story",
-          "2": "Custom work",
-          "3": "Care guide",
-          "4": "Sizing"
-        }
-      },
-      "3": {
-        "title": "Connect",
-        "links": {
-          "1": "Instagram",
-          "2": "Newsletter",
-          "3": "Stockists",
-          "4": "Contact"
-        }
-      }
+      "shop": { "title": "Shop" },
+      "studio": { "title": "Studio" },
+      "contact": { "title": "Contact" },
+      "legal": { "title": "Legal" }
+    },
+    "links": {
+      "rings": "Rings",
+      "about": "Our story",
+      "faq": "FAQ",
+      "contacts": "Contact",
+      "terms": "Terms of sale",
+      "privacy": "Privacy policy",
+      "returns": "Returns"
     },
     "credit": {
       "prefix": "© 2026 mirga.lab — Built by ",
@@ -225,6 +223,27 @@
       "body": "Write to us — we reply within one business day. Better to ask before ordering than to guess at a size.",
       "button": "Get in touch"
     }
+  },
+
+  "termsPage": {
+    "breadcrumbHome": "Home",
+    "title": "Terms of Sale",
+    "intro": "The terms and conditions that apply when you buy from the mirga.lab online shop.",
+    "updated": "Last updated {date}"
+  },
+
+  "privacyPage": {
+    "breadcrumbHome": "Home",
+    "title": "Privacy Policy",
+    "intro": "How we collect, use and protect your personal data.",
+    "updated": "Last updated {date}"
+  },
+
+  "returnsPage": {
+    "breadcrumbHome": "Home",
+    "title": "Returns & Exchanges",
+    "intro": "How and when a ring can be returned or exchanged — including the exception for made-to-order rings.",
+    "updated": "Last updated {date}"
   },
 
   "catalog": {
@@ -309,6 +328,13 @@
       "link": "Write to us",
       "suffix": " — we'll help you choose."
     }
+  },
+
+  "cookieNotice": {
+    "label": "Cookie notice",
+    "text": "We use only essential browser storage to keep your cart, plus privacy-friendly, cookie-free visit analytics.",
+    "link": "Privacy policy",
+    "accept": "Got it"
   },
 
   "cart": {

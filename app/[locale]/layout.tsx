@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Analytics } from "@vercel/analytics/next";
 import { Anton, Epilogue } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -7,6 +8,7 @@ import "../globals.css";
 import LenisProvider from "@/components/LenisProvider";
 import CartUIProvider from "@/components/cart/CartUIProvider";
 import CartDrawer from "@/components/cart/CartDrawer";
+import CookieNotice from "@/components/CookieNotice";
 import { routing } from "@/i18n/routing";
 
 // Display font — heavy, ALL CAPS headings
@@ -63,9 +65,11 @@ export default async function LocaleLayout({
             <CartUIProvider>
               {children}
               <CartDrawer />
+              <CookieNotice />
             </CartUIProvider>
           </LenisProvider>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );

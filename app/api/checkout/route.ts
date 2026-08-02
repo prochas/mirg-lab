@@ -24,6 +24,24 @@ const MAX_LINES = 50;
 const METADATA_VALUE_LIMIT = 500;
 
 /**
+ * Stripe Tax must stay off until the Stripe Dashboard has an origin address
+ * and at least one tax registration configured (Settings -> Tax). Flipping
+ * `automatic_tax.enabled` on without that fails every Checkout Session with
+ * a Stripe API error — there is no graceful degradation, so this cannot
+ * default to on. Once the seller is VAT-registered (domestically, or via EU
+ * OSS past the €10,000 distance-selling threshold) and the Dashboard side is
+ * done, set `STRIPE_TAX_ENABLED=true`.
+ *
+ * `tax_code`/`tax_behavior` below are harmless to send either way — they're
+ * only acted on once tax is actually enabled — so they aren't gated.
+ */
+const TAX_ENABLED = process.env.STRIPE_TAX_ENABLED === "true";
+
+/** Stripe's generic "tangible goods" category — no EU country taxes jewelry
+ * differently from other physical goods. */
+const GENERAL_GOODS_TAX_CODE = "txcd_99999999";
+
+/**
  * What Sanity gives us. Note what is absent: anything price-shaped that the
  * client could have influenced.
  */
@@ -149,6 +167,11 @@ export async function POST(req: Request) {
       price_data: {
         currency: "eur",
         unit_amount: unitAmount,
+        // The Sanity price is the final consumer-facing price (EU law
+        // requires that). Inclusive means Stripe Tax backs the VAT out of
+        // this amount for the buyer's country rather than adding it on top,
+        // so the charge always matches what was shown in the cart.
+        tax_behavior: "inclusive",
         product_data: {
           name: title,
           // Size, material and the delivery expectation, so the Stripe receipt
@@ -163,6 +186,7 @@ export async function POST(req: Request) {
           ...(product.imageRef
             ? { images: [urlFor(product.imageRef).width(600).url()] }
             : {}),
+          tax_code: GENERAL_GOODS_TAX_CODE,
           metadata: { productId: product.id, size: line.size },
         },
       },
@@ -206,6 +230,10 @@ export async function POST(req: Request) {
         eu: tCheckout("shipping.eu"),
         free: tCheckout("shipping.free"),
       }),
+      // See the TAX_ENABLED comment above — off until Stripe Tax is actually
+      // configured for this account. shipping_address_collection above
+      // already gives Stripe the destination it needs once this flips on.
+      automatic_tax: { enabled: TAX_ENABLED },
       locale,
       success_url: `${absoluteUrl("/success")}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: absoluteUrl("/cancel"),

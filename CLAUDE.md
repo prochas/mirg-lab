@@ -365,6 +365,38 @@ either collecting the country before creating the session or moving to Stripe's
 dynamic shipping — don't "fix" it by trusting a client-sent country, which is
 exactly how you get €3.90 shipping to Portugal.
 
+## Taxes (Stripe Tax / EU VAT)
+
+`app/api/checkout/route.ts` passes `automatic_tax: { enabled: TAX_ENABLED }`,
+where `TAX_ENABLED` reads `STRIPE_TAX_ENABLED === "true"` — **off by default**,
+and deliberately not auto-enabled. Stripe hard-fails every Checkout Session
+creation if `automatic_tax.enabled` is `true` and the account has no origin
+address / tax registration configured under Dashboard → Tax → Settings; there
+is no graceful degradation, so flipping this on is a two-step process:
+
+1. In the Stripe Dashboard: set the origin address, decide the VAT posture
+   (see below), and add at least one tax registration.
+2. Set `STRIPE_TAX_ENABLED=true` in the environment.
+
+Every ring's `price_data` already carries `tax_behavior: "inclusive"` and
+`tax_code: "txcd_99999999"` (general tangible goods — no EU country taxes
+jewelry differently from other physical goods), and `lib/shipping.ts`'s
+`shipping_rate_data` carries the same `tax_behavior`. These are harmless to
+send whether or not tax is enabled, so they aren't gated behind the flag —
+only `automatic_tax.enabled` is. **Inclusive** means the EUR price already
+shown in the shop is the final charge; Stripe backs the VAT amount for the
+buyer's EU country out of that total rather than adding it on top, so the
+price never changes depending on where the customer is.
+
+**VAT registration is a business decision, not a code one** — this
+repository does not assume the seller is VAT-registered. Below the EU-wide
+€10,000/year distance-selling threshold, a Lithuania-based seller charges
+Lithuanian VAT (or none, if under the separate ~€45,000 Lithuanian VAT-payer
+registration threshold and not registered at all); above €10,000, VAT is due
+at the buyer's country rate, normally remitted through the EU One-Stop-Shop
+(OSS) scheme. Don't enable `STRIPE_TAX_ENABLED` until that registration
+status is real and reflected in the Dashboard.
+
 ## Environment variables
 
 ```
@@ -376,6 +408,8 @@ STRIPE_WEBHOOK_SECRET=       # from `stripe listen` locally / Dashboard in prod
 RESEND_API_KEY=
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 SANITY_REVALIDATE_SECRET=    # shared secret for the Studio -> /api/revalidate webhook
+STRIPE_TAX_ENABLED=          # "true" to turn on Stripe Tax — see "Taxes" above;
+                              # requires Dashboard setup first, do not set blindly
 ```
 
 Never expose `SANITY_WRITE_TOKEN`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, or
@@ -442,13 +476,28 @@ stripe trigger checkout.session.completed   # send a test event
       signature off the raw body, flip `ready -> false` for consumed units, send
       the Resend confirmation. Until it exists, a paid order does not update
       `ready` and sends no email — the Stripe Dashboard is the only record.
-- [ ] Legal pages (terms, privacy, returns — note the made-to-order/custom-goods
-      exception to the EU 14-day withdrawal right; verify with VVTAT guidance).
-      The FAQ already states this policy in plain language (`lib/faq.ts`,
-      `returns` group) — keep the two in step, and treat the legal page as the
-      authoritative wording.
-- [ ] Cookie consent + analytics
-- [ ] Stripe Tax (EU VAT) before launch
+- [x] Legal pages (terms, privacy, returns) — `lib/legal.ts` +
+      `app/[locale]/terms|privacy|returns/page.tsx`. Seller identity
+      (`SELLER.name`/`SELLER.id` in `lib/legal.ts`) is still a bracketed
+      placeholder — fill in the real legal entity name and registration number,
+      and have the made-to-order/custom-goods withdrawal-right exception
+      checked against current VVTAT guidance, before launch. The FAQ already
+      states this policy in plain language (`lib/faq.ts`, `returns` group) —
+      keep the two in step, and treat the legal page as the authoritative
+      wording.
+- [x] Cookie consent + analytics — Vercel Web Analytics (`@vercel/analytics`,
+      mounted in `app/[locale]/layout.tsx`) plus `components/CookieNotice.tsx`.
+      Vercel Web Analytics is cookieless and collects no personal data, and the
+      cart's localStorage use is strictly necessary (ePrivacy Art. 5(3)
+      exemption), so neither legally requires opt-in consent — the banner is a
+      dismiss-once transparency notice, not a consent gate. Revisit if a
+      cookie-based tool (e.g. Google Analytics, marketing pixels) is ever added.
+- [x] Stripe Tax (EU VAT) before launch — code is ready
+      (`STRIPE_TAX_ENABLED`, inclusive `tax_behavior` on every price and on
+      shipping, see "Taxes" above), but stays off until the Stripe Dashboard
+      has an origin address + tax registration configured and the seller's
+      actual VAT/OSS registration status is decided — flipping the flag
+      without that breaks every checkout.
 - [ ] Translate the Stripe line-item descriptions + Resend email per locale
       (product content itself is already localised in Sanity)
 - [ ] Set `NEXT_PUBLIC_BASE_URL=https://mirgalab.com` in the production
