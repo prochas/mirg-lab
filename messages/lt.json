@@ -22,7 +22,48 @@
     },
     "product": {
       "title": "{title} — mirga.lab"
+    },
+    "success": {
+      "title": "Užsakymas gautas — mirga.lab",
+      "description": "Dėkojame už užsakymą."
+    },
+    "cancel": {
+      "title": "Apmokėjimas atšauktas — mirga.lab",
+      "description": "Apmokėjimas neįvyko, krepšelis liko nepakitęs."
     }
+  },
+  "checkout": {
+    "sizeLabel": "Dydis {size}",
+    "shipping": {
+      "domestic": "Lietuva",
+      "eu": "Kitos ES šalys",
+      "free": "Nemokamas pristatymas"
+    }
+  },
+  "success": {
+    "eyebrow": "Apmokėta",
+    "title": "Dėkojame už užsakymą",
+    "body": "Užsakymą gavome ir jau pradedame darbą. Patvirtinimą išsiuntėme el. paštu {email}.",
+    "bodyNoEmail": "Užsakymą gavome ir jau pradedame darbą. Patvirtinimą išsiuntėme el. paštu.",
+    "orderLabel": "Užsakymo nr.",
+    "totalLabel": "Sumokėta",
+    "nextTitle": "Kas toliau",
+    "next": {
+      "1": "Atsakysime el. paštu per vieną darbo dieną.",
+      "2": "Paruoštus žiedus išsiunčiame per 1–2 d. d., gaminamus — per 1–2 savaites.",
+      "3": "Išsiuntę pranešime ir atsiųsime siuntos numerį."
+    },
+    "cta": "Toliau apžiūrėti žiedus",
+    "help": "Klausimai apie užsakymą? Rašykite",
+    "pendingTitle": "Apmokėjimas apdorojamas",
+    "pendingBody": "Bankas dar tvirtina mokėjimą. Patvirtinimą atsiųsime el. paštu, kai tik jis bus baigtas."
+  },
+  "cancel": {
+    "eyebrow": "Neapmokėta",
+    "title": "Apmokėjimas atšauktas",
+    "body": "Nieko nenuskaitėme. Krepšelis liko toks, koks buvo — galite tęsti, kai būsite pasiruošę.",
+    "cta": "Grįžti į krepšelį",
+    "browse": "Apžiūrėti žiedus"
   },
 
   "common": {
@@ -84,7 +125,7 @@
   "featured": {
     "eyebrow": "02 / ŠIOS SAVAITĖS NAUJIENOS",
     "heading": "Ką Tik Nuo Stalo",
-    "ring": "Žiedas Nr. {n}"
+    "all": "Visi žiedai"
   },
 
   "philosophy": {
@@ -294,6 +335,12 @@
     "total": "Iš viso",
     "taxNote": "Mokesčiai apskaičiuojami atsiskaitant",
     "checkout": "Apmokėti — {total}",
+    "checkoutPending": "Nukreipiame į apmokėjimą…",
+    "error": {
+      "generic": "Nepavyko pradėti apmokėjimo. Pabandykite dar kartą.",
+      "unavailable": "Vieno iš krepšelio žiedų nebėra. Atnaujinkite krepšelį.",
+      "retry": "Bandyti dar kartą"
+    },
     "continue": "Tęsti apsipirkimą",
     "secure": "Saugus mokėjimas per Stripe"
   },

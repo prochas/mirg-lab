@@ -8,9 +8,11 @@ import {
   useState,
 } from "react";
 
-// Drawer open/close only — deliberately NOT a cart store. Line items still come
-// from mock data; this exists so the navbar icon and the product page's
-// "Į krepšelį" button can both reveal the same drawer.
+// Drawer open/close only. The cart itself lives in `store/cart.ts` (Zustand,
+// persisted to localStorage) — this is purely the "is the panel showing" flag,
+// so the navbar icon and the product page's "Į krepšelį" button can both reveal
+// the same drawer. Kept separate because open/close is ephemeral UI state that
+// must never be persisted.
 type CartUI = {
   open: boolean;
   openCart: () => void;

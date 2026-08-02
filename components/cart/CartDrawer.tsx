@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
@@ -9,26 +9,149 @@ import { lockScroll, unlockScroll } from "@/components/LenisProvider";
 import { formatPrice } from "@/lib/format";
 import {
   cartCount,
+  cartKey,
   cartSubtotal,
-  mockCart,
-  resolveCart,
+  type CartItem,
   FREE_SHIPPING_FROM,
+  MAX_QTY,
 } from "@/lib/cart";
+import { resolveCartAction } from "@/app/actions/cart";
+import { useCartHydrated, useCartStore } from "@/store/cart";
 
 const payments = ["VISA", "MASTERCARD", "AMEX", "PAYPAL"];
 
-// Every control below the open/close pair is intentionally inert — this is a
-// UI pass only, so quantity steppers, remove and checkout do nothing yet.
+// Checkout is still inert — /api/checkout doesn't exist yet. Everything else
+// (add, remove, quantity) is live.
 export default function CartDrawer() {
   const t = useTranslations("cart");
-  const tFulfillment = useTranslations("fulfillment");
   const locale = useLocale() as Locale;
   const { open, closeCart } = useCartUI();
 
-  const items = resolveCart(mockCart, locale, tFulfillment);
-  const subtotal = cartSubtotal(items);
-  const count = cartCount(mockCart);
+  const lines = useCartStore((s) => s.lines);
+  const setQty = useCartStore((s) => s.setQty);
+  const removeLine = useCartStore((s) => s.remove);
+  const keepOnly = useCartStore((s) => s.keepOnly);
+  const hydrated = useCartHydrated();
+
+  // Product data only (title, photo, unit price, fulfillment). Quantities are
+  // NOT read from here — see `rows` below.
+  const [resolved, setResolved] = useState<CartItem[]>([]);
+  const [, startTransition] = useTransition();
+
+  // Resolved eagerly whenever the lines change rather than on open, so the
+  // drawer is already populated by the time the customer opens it.
+  //
+  // `lines` is the dependency, not `open`: the prices and the fulfillment
+  // message come from Sanity and must not go stale before they're read.
+  useEffect(() => {
+    if (!hydrated || lines.length === 0) return;
+
+    let active = true;
+    startTransition(async () => {
+      const items = await resolveCartAction(lines, locale);
+      if (!active) return;
+      setResolved(items);
+      // Anything Sanity no longer returns was deleted or unpublished — drop it
+      // from the store so the badge count matches what's actually shown.
+      keepOnly(items.map((i) => i.key));
+    });
+
+    // Guards against an out-of-order response overwriting a newer resolve.
+    return () => {
+      active = false;
+    };
+  }, [lines, locale, hydrated, keepOnly]);
+
+  /**
+   * The rendered lines: quantity and line total come from the store so the
+   * steppers respond instantly, while the name, photo and unit price come from
+   * the last server resolve. Merging this way avoids a round-trip of lag on
+   * every +/- click.
+   *
+   * Driving the list off `lines` also means a removal disappears immediately
+   * instead of lingering until the refetch lands.
+   */
+  const rows = useMemo(() => {
+    if (!hydrated) return [];
+    const byKey = new Map(resolved.map((i) => [i.key, i]));
+    return lines.flatMap((line) => {
+      const item = byKey.get(cartKey(line));
+      if (!item) return [];
+      return [{ ...item, qty: line.qty, lineTotal: item.unitPrice * line.qty }];
+    });
+  }, [lines, resolved, hydrated]);
+
+  const [checkoutError, setCheckoutError] = useState<
+    "generic" | "unavailable" | null
+  >(null);
+  const [redirecting, setRedirecting] = useState(false);
+
+  // After `window.location.assign` to Stripe, pressing Back restores this page
+  // from the browser's bfcache instead of re-running the module from scratch —
+  // `redirecting` is still `true` from before the navigation, so the button
+  // stays stuck on "Redirecting to payment…" forever. `pageshow` with
+  // `persisted: true` is what fires on a bfcache restore; reset the flag there.
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (event.persisted) setRedirecting(false);
+    }
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
+  /**
+   * Hands the lines to `/api/checkout` and follows Stripe's hosted page.
+   *
+   * Only `{ id, size, qty }` is sent — the route reads every price from Sanity,
+   * so there is no amount here for anyone to tamper with.
+   *
+   * The cart is deliberately NOT cleared: the customer may cancel or close the
+   * tab, and losing their cart at that point would be hostile. `/success`
+   * clears it once payment is actually confirmed.
+   */
+  async function startCheckout() {
+    if (redirecting || lines.length === 0) return;
+    setRedirecting(true);
+    setCheckoutError(null);
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: lines, locale }),
+      });
+      const data = (await res.json().catch(() => null)) as {
+        url?: string;
+        error?: string;
+      } | null;
+
+      if (!res.ok || !data?.url) {
+        const code = data?.error;
+        setCheckoutError(
+          code === "unknown_product" ||
+            code === "unavailable" ||
+            code === "invalid_size"
+            ? "unavailable"
+            : "generic",
+        );
+        setRedirecting(false);
+        return;
+      }
+
+      // Full navigation, not the router: this leaves the app for Stripe.
+      window.location.assign(data.url);
+    } catch {
+      setCheckoutError("generic");
+      setRedirecting(false);
+    }
+  }
+
+  const subtotal = cartSubtotal(rows);
+  const count = hydrated ? cartCount(lines) : 0;
   const freeShipping = subtotal >= FREE_SHIPPING_FROM;
+  // Lines exist but haven't resolved yet — show the skeleton, not the empty
+  // state, or the cart looks wiped for a moment on a cold open.
+  const loading = hydrated && lines.length > 0 && rows.length === 0;
 
   useEffect(() => {
     if (!open) return;
@@ -98,7 +221,24 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {items.length === 0 ? (
+        {loading ? (
+          /* ── Skeleton while the lines resolve against Sanity ── */
+          <div className="flex-1 px-[clamp(18px,4vw,26px)]" aria-busy="true">
+            {lines.map((line) => (
+              <div
+                key={`${line.id}__${line.size}`}
+                className="flex gap-4 border-b border-[#111]/10 py-5 last:border-b-0"
+              >
+                <div className="aspect-[5/6] w-[86px] flex-none animate-pulse rounded-[14px] bg-[#111]/[0.07]" />
+                <div className="flex min-w-0 flex-1 flex-col gap-2.5 py-1">
+                  <div className="h-[15px] w-2/3 animate-pulse rounded bg-[#111]/[0.07]" />
+                  <div className="h-[11px] w-1/2 animate-pulse rounded bg-[#111]/[0.07]" />
+                  <div className="mt-auto h-[28px] w-1/3 animate-pulse rounded-full bg-[#111]/[0.07]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : rows.length === 0 ? (
           /* ── Empty state ── */
           <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
             <div className="font-[family-name:var(--font-anton)] text-[1.4rem] uppercase text-[#111]">
@@ -138,9 +278,9 @@ export default function CartDrawer() {
               data-lenis-prevent
               className="flex-1 overflow-y-auto px-[clamp(18px,4vw,26px)]"
             >
-              {items.map((item) => (
+              {rows.map((item) => (
                 <div
-                  key={`${item.slug}-${item.size}`}
+                  key={item.key}
                   className="flex gap-4 border-b border-[#111]/10 py-5 last:border-b-0"
                 >
                   {/* Thumbnail */}
@@ -149,12 +289,14 @@ export default function CartDrawer() {
                     onClick={closeCart}
                     className="relative aspect-[5/6] w-[86px] flex-none overflow-hidden rounded-[14px] bg-[#e9e7df]"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.product.images[0]}
-                      alt={item.product.title}
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    {item.image && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    )}
                   </Link>
 
                   {/* Details */}
@@ -166,10 +308,10 @@ export default function CartDrawer() {
                           onClick={closeCart}
                           className="block truncate font-[family-name:var(--font-anton)] text-[1.05rem] uppercase leading-none text-[#111] no-underline transition-colors duration-300 hover:text-[#ff4d3d]"
                         >
-                          {item.product.title}
+                          {item.title}
                         </Link>
                         <div className="mt-1.5 text-[12px] text-[#7a7a76]">
-                          {item.product.material} ·{" "}
+                          {item.material} ·{" "}
                           {t("sizeLabel", { size: item.size })}
                         </div>
                       </div>
@@ -177,7 +319,8 @@ export default function CartDrawer() {
                       {/* Remove */}
                       <button
                         type="button"
-                        aria-label={t("remove", { title: item.product.title })}
+                        onClick={() => removeLine(item.key)}
+                        aria-label={t("remove", { title: item.title })}
                         className="flex h-8 w-8 flex-none items-center justify-center rounded-full text-[#7a7a76] transition-colors duration-300 hover:bg-[#111]/[0.06] hover:text-[#ff4d3d]"
                       >
                         <svg
@@ -213,8 +356,11 @@ export default function CartDrawer() {
                     {/* Quantity + line total */}
                     <div className="mt-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-1 rounded-full border border-[#111]/20 p-1">
+                        {/* At 1, decrement removes the line — the expected
+                            behaviour, and it avoids a dead-looking button. */}
                         <button
                           type="button"
+                          onClick={() => setQty(item.key, item.qty - 1)}
                           aria-label={t("decrease")}
                           className="flex h-7 w-7 items-center justify-center rounded-full text-[16px] leading-none text-[#111] transition-colors duration-200 hover:bg-[#111] hover:text-white"
                         >
@@ -225,8 +371,10 @@ export default function CartDrawer() {
                         </span>
                         <button
                           type="button"
+                          onClick={() => setQty(item.key, item.qty + 1)}
+                          disabled={item.qty >= MAX_QTY}
                           aria-label={t("increase")}
-                          className="flex h-7 w-7 items-center justify-center rounded-full text-[16px] leading-none text-[#111] transition-colors duration-200 hover:bg-[#111] hover:text-white"
+                          className="flex h-7 w-7 items-center justify-center rounded-full text-[16px] leading-none text-[#111] transition-colors duration-200 enabled:hover:bg-[#111] enabled:hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           +
                         </button>
@@ -267,14 +415,57 @@ export default function CartDrawer() {
                 {t("taxNote")}
               </p>
 
+              {checkoutError && (
+                <div
+                  role="alert"
+                  className="mt-4 rounded-[10px] bg-[#ff4d3d]/10 px-4 py-3 text-[13px] leading-[1.45] text-[#b3271a]"
+                >
+                  {t(`error.${checkoutError}`)}
+                </div>
+              )}
+
               <button
                 type="button"
-                className="group mt-4 flex w-full items-center justify-center gap-3 rounded-[10px] bg-[#111] py-4 text-[13px] font-semibold uppercase tracking-[0.1em] text-white transition-[background-color,box-shadow] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-[#ff4d3d] hover:shadow-[0_4px_24px_rgba(255,77,61,0.35)]"
+                onClick={startCheckout}
+                disabled={redirecting}
+                aria-busy={redirecting}
+                className="group mt-4 flex w-full items-center justify-center gap-3 rounded-[10px] bg-[#111] py-4 text-[13px] font-semibold uppercase tracking-[0.1em] text-white transition-[background-color,box-shadow,opacity] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] enabled:hover:bg-[#ff4d3d] enabled:hover:shadow-[0_4px_24px_rgba(255,77,61,0.35)] disabled:cursor-wait disabled:opacity-70"
               >
-                {t("checkout", { total: formatPrice(subtotal, locale) })}
-                <span className="inline-block transition-transform duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-x-1.5">
-                  →
-                </span>
+                {redirecting ? (
+                  <>
+                    <svg
+                      aria-hidden="true"
+                      className="size-4 animate-spin text-white/70"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="9"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeOpacity="0.25"
+                      />
+                      <path
+                        d="M21 12a9 9 0 0 0-9-9"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    {t("checkoutPending")}
+                  </>
+                ) : (
+                  <>
+                    {checkoutError
+                      ? t("error.retry")
+                      : t("checkout", { total: formatPrice(subtotal, locale) })}
+                    <span className="inline-block transition-transform duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-x-1.5">
+                      →
+                    </span>
+                  </>
+                )}
               </button>
 
               <button

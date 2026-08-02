@@ -13,10 +13,11 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { alternatesFor } from "@/i18n/metadata";
 import { routing } from "@/i18n/routing";
 import { formatPrice } from "@/lib/format";
-import { getRelatedRings, getRingBySlug, RING_SLUGS } from "@/lib/rings";
+import { getRelatedRings, getRingBySlug, getRingSlugs } from "@/lib/rings";
 
-export function generateStaticParams() {
-  return RING_SLUGS.map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await getRingSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -27,7 +28,7 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   if (!hasLocale(routing.locales, locale)) return {};
 
-  const ring = getRingBySlug(slug, locale);
+  const ring = await getRingBySlug(slug, locale);
   if (!ring) return {};
 
   const t = await getTranslations({ locale, namespace: "metadata.product" });
@@ -53,11 +54,11 @@ export default async function ProductPage({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
-  const ring = getRingBySlug(slug, locale);
+  const ring = await getRingBySlug(slug, locale);
   if (!ring) notFound();
 
   const t = await getTranslations("product");
-  const related = getRelatedRings(slug, locale, 4);
+  const related = await getRelatedRings(slug, locale, 4);
 
   const sections = [
     { title: t("spec"), items: ring.details },

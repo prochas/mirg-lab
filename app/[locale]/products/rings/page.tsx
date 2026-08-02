@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import RingsCatalog from "@/components/RingsCatalog";
 import { alternatesFor } from "@/i18n/metadata";
 import { routing } from "@/i18n/routing";
-import { getRings } from "@/lib/rings";
+import { getRings, getRingSizes } from "@/lib/rings";
 
 export async function generateMetadata({
   params,
@@ -37,7 +37,9 @@ export default async function RingsCategoryPage({
   setRequestLocale(locale);
 
   const t = await getTranslations("catalog");
-  const rings = getRings(locale);
+  // Sizes are derived from the whole catalog, not from the filtered rings, so
+  // the filter row doesn't change shape as the visitor narrows it down.
+  const [rings, sizes] = await Promise.all([getRings(locale), getRingSizes()]);
 
   return (
     <>
@@ -81,7 +83,7 @@ export default async function RingsCategoryPage({
           id="rings-catalog"
           className="px-[clamp(18px,4vw,56px)] py-[clamp(40px,6vw,84px)]"
         >
-          <RingsCatalog rings={rings} />
+          <RingsCatalog rings={rings} sizes={sizes} />
         </section>
       </main>
       <Footer />

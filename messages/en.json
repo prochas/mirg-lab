@@ -22,7 +22,48 @@
     },
     "product": {
       "title": "{title} — mirga.lab"
+    },
+    "success": {
+      "title": "Order received — mirga.lab",
+      "description": "Thank you for your order."
+    },
+    "cancel": {
+      "title": "Payment cancelled — mirga.lab",
+      "description": "The payment didn't go through and your cart is untouched."
     }
+  },
+  "checkout": {
+    "sizeLabel": "Size {size}",
+    "shipping": {
+      "domestic": "Lithuania",
+      "eu": "Rest of the EU",
+      "free": "Free shipping"
+    }
+  },
+  "success": {
+    "eyebrow": "Paid",
+    "title": "Thank you for your order",
+    "body": "We've got it and we're starting work. A confirmation is on its way to {email}.",
+    "bodyNoEmail": "We've got it and we're starting work. A confirmation is on its way to your inbox.",
+    "orderLabel": "Order no.",
+    "totalLabel": "Paid",
+    "nextTitle": "What happens next",
+    "next": {
+      "1": "We'll reply by email within one business day.",
+      "2": "Ready pieces ship in 1–2 business days; made-to-order takes 1–2 weeks.",
+      "3": "You'll get a note and a tracking number once it's posted."
+    },
+    "cta": "Keep looking at rings",
+    "help": "Questions about your order? Write to",
+    "pendingTitle": "Payment processing",
+    "pendingBody": "Your bank is still confirming the payment. We'll email you as soon as it clears."
+  },
+  "cancel": {
+    "eyebrow": "Not paid",
+    "title": "Payment cancelled",
+    "body": "Nothing was charged. Your cart is exactly as you left it — pick up whenever you're ready.",
+    "cta": "Back to the cart",
+    "browse": "Browse rings"
   },
 
   "common": {
@@ -84,7 +125,7 @@
   "featured": {
     "eyebrow": "02 / NEW THIS WEEK",
     "heading": "Fresh Off The Bench",
-    "ring": "Ring No. {n}"
+    "all": "All rings"
   },
 
   "philosophy": {
@@ -294,6 +335,12 @@
     "total": "Total",
     "taxNote": "Taxes calculated at checkout",
     "checkout": "Checkout — {total}",
+    "checkoutPending": "Redirecting to payment…",
+    "error": {
+      "generic": "We couldn't start the payment. Please try again.",
+      "unavailable": "One of the rings in your cart is no longer available. Please refresh your cart.",
+      "retry": "Try again"
+    },
     "continue": "Continue shopping",
     "secure": "Secure payment via Stripe"
   },

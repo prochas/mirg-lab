@@ -8,6 +8,7 @@ import type { Locale } from "@/i18n/routing";
 import { formatPrice } from "@/lib/format";
 import { getFulfillment } from "@/lib/fulfillment";
 import type { RingProduct } from "@/lib/rings";
+import { useCartStore } from "@/store/cart";
 
 export default function ProductPanel({ ring }: { ring: RingProduct }) {
   const t = useTranslations("product");
@@ -16,6 +17,15 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
   const [chosenSize, setChosenSize] = useState<string | null>(null);
   const [chartOpen, setChartOpen] = useState(false);
   const { openCart } = useCartUI();
+  const add = useCartStore((s) => s.add);
+
+  // Size is required, so this can't fire without one — the button is disabled
+  // until then. The store keeps only the id; price comes from Sanity.
+  function addToCart() {
+    if (!chosenSize) return;
+    add(ring.id, chosenSize);
+    openCart();
+  }
 
   const fulfillment = chosenSize
     ? getFulfillment(ring, chosenSize, tFulfillment)
@@ -93,11 +103,9 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
           {fulfillment ? fulfillment.message : t("choosePrompt")}
         </div>
 
-        {/* Opens the drawer to preview the cart UI. Nothing is actually added —
-            there's no cart store yet, the drawer renders mock lines. */}
         <button
           type="button"
-          onClick={openCart}
+          onClick={addToCart}
           disabled={!chosenSize}
           className="group mt-5 flex w-full items-center justify-center gap-3 rounded-[10px] bg-[#111] py-4 text-[13px] font-semibold uppercase tracking-[0.1em] text-white transition-[background-color,box-shadow,opacity] duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] enabled:hover:bg-[#ff4d3d] enabled:hover:shadow-[0_4px_24px_rgba(255,77,61,0.35)] disabled:cursor-not-allowed disabled:opacity-40"
         >

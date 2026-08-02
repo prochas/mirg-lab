@@ -2,13 +2,14 @@
 
 import { useTranslations } from "next-intl";
 import { useCartUI } from "./CartUIProvider";
-import { cartCount, mockCart } from "@/lib/cart";
+import { useCartCount } from "@/store/cart";
 
 // Split out of Navbar so the header itself can stay a server component.
 export default function CartButton() {
   const t = useTranslations("nav");
   const { openCart } = useCartUI();
-  const count = cartCount(mockCart);
+  // Reads 0 until the persisted cart has rehydrated, matching the SSR'd HTML.
+  const count = useCartCount();
 
   return (
     <button

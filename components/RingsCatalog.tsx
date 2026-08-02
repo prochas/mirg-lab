@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import RingCard from "./RingCard";
 import SortSelect, { type SortOption } from "./SortSelect";
-import { RING_SIZES, type RingProduct } from "@/lib/rings";
+import { type RingProduct } from "@/lib/rings";
 
 type Availability = "all" | "ready" | "made";
 type Sort = "default" | "price-asc" | "price-desc";
@@ -15,7 +15,15 @@ function toggle(list: string[], value: string) {
     : [...list, value];
 }
 
-export default function RingsCatalog({ rings }: { rings: RingProduct[] }) {
+// `sizes` is the union of every ring's sizes, resolved on the server — this is a
+// client component, so it can't await the catalog itself.
+export default function RingsCatalog({
+  rings,
+  sizes: sizeFilterOptions,
+}: {
+  rings: RingProduct[];
+  sizes: string[];
+}) {
   const t = useTranslations("catalog");
   const [materials, setMaterials] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
@@ -94,7 +102,7 @@ export default function RingsCatalog({ rings }: { rings: RingProduct[] }) {
             <span className="mr-1 flex-none text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7a7a76]">
               {t("filters.size")}
             </span>
-            {RING_SIZES.map((s) => {
+            {sizeFilterOptions.map((s) => {
               const active = sizes.includes(s);
               return (
                 <button

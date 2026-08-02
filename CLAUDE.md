@@ -15,7 +15,7 @@ mostly in the EU (Lithuania first).
 
 ## Tech stack
 
-- **Next.js 16** (App Router, TypeScript, `src/` directory, import alias `@/*`)
+- **Next.js 16** (App Router, TypeScript, no `src/` directory, import alias `@/*`)
 - **Tailwind CSS**
 - **next-intl** — LT/EN routing + message catalogs
 - **Sanity** — product catalog + content (single source of truth for products).
@@ -33,8 +33,9 @@ No database and no auth framework — see "Key architecture decisions" below.
    accounts, sessions, or login UI. Stripe collects email/shipping at checkout.
 3. **Stripe hosted Checkout.** The checkout route creates a Checkout Session and
    the client redirects to `session.url`. Do not build a custom card form.
-4. **Cart is client-side** (planned: Zustand + localStorage). The cart stores
-   only `{ id, size, qty }` — never prices.
+4. **Cart is client-side**: Zustand + localStorage in `store/cart.ts`. It stores
+   only `{ id, size, qty }` — never prices, never titles. `id` is the Sanity
+   document id, which is also what the checkout read looks up.
 
 ## Internationalisation (next-intl)
 
@@ -80,10 +81,16 @@ Rules:
   `useTranslations`. Components rendered from both (`RingCard`) use the hook —
   it works in either.
 - **UI chrome** (labels, buttons, headings, form copy) lives in
-  `messages/*.json`. **Ordered content lists** (rings, about chapters/steps/
-  values/stats) live in TypeScript keyed by locale (`Localized<T>`) with a
-  `getX(locale)` accessor, because components iterate them and depend on their
-  length. Don't move one to the other side without a reason.
+  `messages/*.json`. **Product content** (ring titles, descriptions, spec
+  bullets, material names) lives in **Sanity**, stored as `{ lt, en }` objects
+  per field. **Remaining ordered content lists** (about chapters/steps/values/
+  stats, FAQ groups) still live in TypeScript keyed by locale (`Localized<T>`)
+  with a `getX(locale)` accessor, because components iterate them and depend on
+  their length. Don't move one to the other side without a reason.
+- In Sanity, **only the default locale (`lt`) is required** on a translatable
+  field. `localize()` in `lib/rings.ts` falls back to `lt` when an `en`
+  translation is missing, so a half-translated ring renders Lithuanian rather
+  than an empty heading. Never let a missing translation throw.
 - Product **slugs are shared across locales** — one canonical URL per product,
   and cart keys survive a language switch. Filtering matches on locale-stable
   keys (`materialKey`), never on the translated label.
@@ -119,7 +126,7 @@ Each product has:
 - `sizeOptions: string[]` — the sizes a customer can choose
 
 The single source of truth for the customer-facing message is
-`getFulfillment(product, chosenSize)` in `src/lib/fulfillment.ts`. It returns one
+`getFulfillment(product, chosenSize)` in `lib/fulfillment.ts`. It returns one
 of three statuses:
 
 - `ready_exact` — ready unit exists AND matches chosen size → "ready to ship"
@@ -141,7 +148,17 @@ is made to order anyway) — it just keeps the displayed message accurate.
 - **Prices come from Sanity on the server, never from the client.** The client
   sends only product id, size, qty. The checkout route fetches the price from
   Sanity and builds Stripe `price_data` from it. Never trust a client-supplied
-  amount.
+  amount. The route reads *only* those three fields off each line, so a request
+  carrying `price`, `unit_amount` or `currency` has no effect — don't ever start
+  reading an amount, a discount or a total off the request. Same rule for the
+  free-shipping decision: it is computed from the Sanity subtotal, never from a
+  total the client claims.
+- **Read prices with `sanityFetchFresh`, not `sanityFetch`.** The latter caches
+  for 60s and hits the CDN, which would let an order be priced at a superseded
+  amount for up to a minute after an edit.
+- **Redirect URLs are built from `NEXT_PUBLIC_BASE_URL`, never from request
+  headers.** Deriving `success_url` from `Host`/`Origin` turns the route into an
+  open redirect.
 - **The Stripe webhook needs the raw request body.** In
   `app/api/webhook/route.ts` use `await req.text()` and read the signature with
   `(await headers()).get('stripe-signature')`. Never `req.json()` before
@@ -153,14 +170,24 @@ is made to order anyway) — it just keeps the displayed message accurate.
 - **Stripe metadata values are capped at 500 chars.** The cart summary is stored
   compactly as JSON in `session.metadata.items`. Keep it small; the checkout
   route rejects carts whose metadata would exceed the limit.
+- **Never put a `.` in a Sanity document `_id`.** Sanity treats any id containing
+  a period as *private*: it is readable with a token but returns **nothing** to
+  an unauthenticated request — which is exactly what the shop's read client
+  makes. Use dashes (`product-bangele`, `material-silver-925`). This failed
+  silently once already: the seed reported success, Studio and every
+  token-authenticated query showed all 8 rings, and the shop rendered an empty
+  catalog. If content exists in Studio but the site can't see it, check the ids
+  first. Verify with a tokenless query, not a token'd one.
 
 ## Next.js 16 specifics
 
 - `cookies()`, `headers()`, `params`, and `searchParams` are **async** — always
   `await` them.
-- For Sanity content updates without redeploys, use tag-based revalidation
-  (`revalidateTag`) triggered by a Sanity webhook hitting a revalidate route.
-  (Not built yet — add when content edits need to go live instantly.)
+- Every product read goes through `sanityFetch()` in `sanity/lib/client.ts`,
+  which caches for 60s and tags the result with `PRODUCTS_TAG`. The revalidate
+  *route* isn't built yet, but the tag is already in place — a Sanity webhook
+  calling `revalidateTag(PRODUCTS_TAG)` is all that's left to make edits instant.
+  Don't call `client.fetch` directly for product data; that bypasses both.
 - Be careful with the new caching model (`"use cache"` / cacheComponents); the
   checkout and webhook routes must not be statically cached.
 
@@ -182,12 +209,13 @@ app/
     faq/page.tsx               # grouped accordions + FAQPage JSON-LD
     products/rings/page.tsx    # catalog
     products/[slug]/page.tsx   # product page (size selection + fulfillment msg)
-    cart/page.tsx              # (planned — the drawer covers it for now)
-    success/page.tsx           # (planned)
-    cancel/page.tsx            # (planned — or reuse the cart as cancel target)
-  api/                         # (planned — outside [locale], excluded in proxy.ts)
+    success/page.tsx           # retrieves the session from Stripe, clears cart if paid
+    cancel/page.tsx            # nothing charged, cart intact, reopens the drawer
+  api/                         # outside [locale], excluded in proxy.ts
     checkout/route.ts          # POST: builds Stripe Checkout Session (price from Sanity)
-    webhook/route.ts           # POST: verifies signature, flips ready->false, sends email
+    webhook/route.ts           # (planned) verify signature, flip ready->false, send email
+  actions/
+    cart.ts                    # 'use server' — resolveCartAction(lines, locale)
   studio/
     layout.tsx                 # own root layout, <html lang="en">
     [[...tool]]/page.tsx       # embedded Sanity Studio
@@ -199,32 +227,75 @@ messages/
   lt.json                      # all UI copy, mirrored key-for-key
   en.json
 proxy.ts                       # next-intl routing middleware (Next 16 convention)
+store/
+  cart.ts                      # Zustand cart, persisted to localStorage
 lib/
-  rings.ts                     # mock catalog, Localized<T> + getRings(locale)
-  about.ts                     # about-page content, same pattern
+  shipping.ts                  # EU country list + zone rates (in cents)
+  stripe.ts                    # lazy server-only Stripe singleton
+  rings.ts                     # Sanity-backed catalog — async getRings(locale) etc.
+  about.ts                     # about-page content, Localized<T> in TypeScript
   faq.ts                       # grouped Q&A, same pattern — getFaqGroups(locale)
   nav.ts                       # nav link structure, shared by Navbar + MobileMenu
-  cart.ts                      # mock cart lines + resolveCart(lines, locale, t)
+  cart.ts                      # CartLine/CartItem types, cartKey(), async resolveCart()
   fulfillment.ts               # getFulfillment() — the shared business logic
   format.ts                    # formatPrice(amount, locale)
   scroll.ts                    # useScrollEffect for the scroll-driven sections
-  stripe.ts                    # (planned) Stripe SDK singleton
   email.ts                     # (planned) Resend order confirmation
 sanity/
-  lib/client.ts                # read client + server-only write client + GROQ
+  env.ts                       # projectId / dataset / apiVersion (throws if unset)
+  lib/client.ts                # read client, getWriteClient(), sanityFetch(), PRODUCTS_TAG
+  lib/queries.ts               # all GROQ — shared PRODUCT_FIELDS projection
+  lib/image.ts                 # urlFor() image URL builder
+  structure.ts                 # Studio desk: Rings + Materials
   schemaTypes/
-store/                         # (planned) cart (Zustand)
+    localeTypes.ts             # localeString / localeText / localeStringList
+    materialType.ts            # material doc: key (slug) + localized title
+    productType.ts             # the ring document
+scripts/
+  seed-rings.mjs               # one-off migration of the original 8 mock rings
 components/
 ```
 
-## Sanity product schema (summary)
+## Sanity product schema
 
-`product` document: `title`, `slug`, `images[]`, `price` (number, EUR),
-`description` (portable text), `materials[]`, `sizeOptions[]` (required),
-`ready` (boolean), `readySize` (string, hidden unless `ready`).
+Translatable fields use the reusable `localeString` / `localeText` /
+`localeStringList` object types — `{ lt, en }` on the document itself, `lt`
+required, `en` optional.
 
-GROQ for checkout fetches by ids and returns `_id, title, price, ready,
-readySize, slug` — see `productsByIdsQuery` in `src/sanity/client.ts`.
+`product` document (`sanity/schemaTypes/productType.ts`):
+
+| Field         | Type               | Notes                                            |
+| ------------- | ------------------ | ------------------------------------------------ |
+| `title`       | `localeString`     | required                                         |
+| `slug`        | `slug`             | **shared across locales** — one canonical URL    |
+| `material`    | `reference`        | → `material` doc, required                       |
+| `description` | `localeText`       | the paragraph under the price                    |
+| `details`     | `localeStringList` | spec bullets in the accordion                    |
+| `price`       | `number`           | whole EUR, required, positive                    |
+| `sizeOptions` | `string[]`         | required, min 1, unique                          |
+| `ready`       | `boolean`          | is a finished unit on hand                       |
+| `readySize`   | `string`           | hidden unless `ready`; validated ∈ `sizeOptions` |
+| `images`      | `image[]`          | **positional** — see below                       |
+| `featured`    | `boolean`          | home page shows the first four                   |
+| `order`       | `number`           | catalog default sort, ties break on `title.lt`   |
+
+`material` document: `title` (`localeString`) + `key` (`slug`). **`key` is the
+locale-stable filter id** — the catalog filters on `materialKey` and only ever
+*displays* the translated `title`. Never match on the label.
+
+**`images` order is a contract**: `[0]` is the card photo, `[1]` is the hover
+swap, the rest are gallery-only. Reordering the array in Studio changes the card.
+
+All GROQ lives in `sanity/lib/queries.ts` and shares one `PRODUCT_FIELDS`
+projection. Queries return translatable fields as whole `{ lt, en }` objects and
+images as bare asset refs; `localize()` in `lib/rings.ts` resolves the locale and
+builds CDN URLs via `urlFor()`. Doing the locale pick in GROQ would mean a
+`select()` per field in every query. `productsByIdsQuery` is the checkout read
+(`_id, price, ready, readySize, slug, title`).
+
+Queries exclude drafts explicitly (`!(_id in path("drafts.**"))`) — the read
+client has no token, so on a public dataset unpublished rings would otherwise
+appear in the shop.
 
 ## Data flow (end to end)
 
@@ -233,14 +304,65 @@ readySize, slug` — see `productsByIdsQuery` in `src/sanity/client.ts`.
    `fulfillment` namespace. Anything that only needs to branch on the state (the
    webhook, Stripe metadata) uses `getFulfillmentStatus(product, size)` instead,
    which needs no translator.
-2. Cart key is `productId + size` (same ring in two sizes = two line items).
-3. Checkout: client POSTs `{ items: [{ id, size, qty }] }` to `/api/checkout`.
-4. Server fetches products from Sanity, builds Stripe line items with prices from
-   Sanity and `getFulfillment` message in each item's description, stores a
-   compact summary in `session.metadata`, returns `session.url`.
-5. Client redirects to `session.url` (Stripe hosted).
+2. Cart key is `productId + size` — `cartKey()` in `lib/cart.ts`, so the same
+   ring in two sizes is two line items. Add-to-cart writes only
+   `{ id, size, qty }` into the Zustand store.
+2b. The drawer is a client component and the catalog is in Sanity, so it cannot
+   read products during render. It calls `resolveCartAction(lines, locale)` (a
+   server action) whenever the lines change — eagerly, not on open, so the
+   drawer is already populated. Two rules that matter there:
+   - **Quantity and line total render from the store, not from the resolved
+     items.** The resolve is a round-trip; reading qty from it makes the +/−
+     steppers visibly lag. Product name/photo/unit price come from the server,
+     quantities from the store — see `rows` in `CartDrawer`.
+   - Anything the resolve doesn't return (deleted or unpublished in Studio) is
+     pruned from the store via `keepOnly`, so the badge can't disagree with the
+     visible lines.
+   The action is a public POST endpoint: it shape-checks its input, caps lines
+   at 50 and qty at `MAX_QTY`, and only ever reads public catalog data.
+2c. Anything reading the cart during SSR must gate on `useCartHydrated()` —
+   the server renders an empty cart and the browser rehydrates a full one, so
+   reading `lines` directly on the first client render is a hydration mismatch.
+3. Checkout: client POSTs `{ items: [{ id, size, qty }], locale }` to
+   `/api/checkout`. That is the entire payload — there is no amount in it.
+4. The route (`app/api/checkout/route.ts`) then, in this order:
+   - shape-checks every line and rejects the whole cart on anything unexpected
+     (bad types, `qty < 1`, >50 lines, duplicate `id+size`);
+   - re-reads the products from Sanity via **`sanityFetchFresh`** — uncached and
+     off-CDN, so a just-changed price can't be sold at the old amount;
+   - refuses unknown/unpublished ids (`unknown_product`) rather than skipping
+     them, a non-positive price (`unavailable`), and a size not in
+     `sizeOptions` (`invalid_size`);
+   - builds `price_data` with `unit_amount: Math.round(price * 100)` and
+     `currency: 'eur'`, both from Sanity;
+   - picks shipping from the **Sanity-derived** subtotal (see below);
+   - writes a compact `session.metadata.items` summary, rejecting the cart if it
+     would exceed Stripe's 500-char cap;
+   - returns only `{ url }`.
+   Validation runs entirely before Stripe is called, so a bad cart never creates
+   a session. Errors come back as short codes; details stay in the server log.
+5. Client redirects to `session.url` (Stripe hosted) via `window.location`.
+   The cart is **not** cleared here — `/success` clears it only after Stripe
+   confirms `payment_status === 'paid'`, so cancelling keeps the cart.
 6. On `checkout.session.completed`, `/api/webhook` flips consumed units to
    `ready=false` and sends the confirmation email via Resend.
+
+## Shipping
+
+Rates live in `lib/shipping.ts` as constants in **euro cents**, alongside the
+allowed-country list (all 27 EU states).
+
+Above `FREE_SHIPPING_FROM` (€100, from `lib/cart.ts`) the session gets a single
+free option, so there is nothing to choose. Below it, both zone rates are
+offered — Lithuania €3.90, rest of the EU €9.90.
+
+The zone is the **customer's selection**, not something the server derives:
+Stripe fixes `shipping_options` when the session is created, so they cannot
+react to the address typed in afterwards. The Dashboard shows the delivery
+address next to the rate they picked, so a mismatch is visible. Upgrading means
+either collecting the country before creating the session or moving to Stripe's
+dynamic shipping — don't "fix" it by trusting a client-sent country, which is
+exactly how you get €3.90 shipping to Portugal.
 
 ## Environment variables
 
@@ -263,6 +385,17 @@ to the client. Only `NEXT_PUBLIC_*` vars may reach the browser.
 npm run dev        # Next dev server (http://localhost:3000)
 npm run build      # production build
 npm run lint       # ESLint
+
+# One-off: migrate the original 8 mock rings into Sanity (needs SANITY_WRITE_TOKEN).
+# Idempotent — deterministic doc ids, images deduped by filename label.
+npm run seed:rings
+npm run seed:rings -- --replace   # overwrite the seeded docs, discarding Studio edits
+
+# Stop the dev server BEFORE deleting .next. Turbopack keeps a persistent task
+# database open at .next/dev/cache/turbopack; removing it under a live process
+# corrupts that database and the server then panics with "Failed to restore task
+# data" / "Unable to open static sorted file ... .sst". Recovery is exactly:
+# stop the dev server, rm -rf .next, restart. Source is never affected.
 
 # Local Stripe webhook forwarding (run in a separate terminal during dev):
 stripe listen --forward-to localhost:3000/api/webhook
@@ -291,12 +424,20 @@ stripe trigger checkout.session.completed   # send a test event
 
 ## TODO / not yet built
 
-- [ ] Product page with required size selector + fulfillment message
-- [ ] Zustand cart (+ localStorage persistence)
-- [ ] Catalog + home pages
-- [ ] success / cancel pages
+- [x] Product page with required size selector + fulfillment message
+- [x] Catalog + home pages
+- [x] Sanity product catalog (schema, GROQ, seed) — `lib/rings.ts` reads Sanity
+- [x] Zustand cart (+ localStorage persistence) — `store/cart.ts`, resolved for
+      display through `app/actions/cart.ts`
+- [x] Stripe hosted Checkout (`/api/checkout`) + success / cancel pages
 - [ ] Resend domain verification (sender: uzsakymai@mirga.lab)
 - [ ] Sanity → revalidateTag webhook for instant content updates
+      (reads are already tagged with `PRODUCTS_TAG`; only the route is missing)
+- [ ] Real per-product photography — the seeded rings share a pool of 8 photos
+- [ ] `/api/webhook` is the remaining half of the payment flow: verify the
+      signature off the raw body, flip `ready -> false` for consumed units, send
+      the Resend confirmation. Until it exists, a paid order does not update
+      `ready` and sends no email — the Stripe Dashboard is the only record.
 - [ ] Legal pages (terms, privacy, returns — note the made-to-order/custom-goods
       exception to the EU 14-day withdrawal right; verify with VVTAT guidance).
       The FAQ already states this policy in plain language (`lib/faq.ts`,
@@ -304,9 +445,8 @@ stripe trigger checkout.session.completed   # send a test event
       authoritative wording.
 - [ ] Cookie consent + analytics
 - [ ] Stripe Tax (EU VAT) before launch
-- [ ] Localise Sanity product content once the catalog moves off `lib/rings.ts`
-      (internationalised array fields, or `title_lt` / `title_en`), and translate
-      the Stripe line-item descriptions + Resend email per locale
+- [ ] Translate the Stripe line-item descriptions + Resend email per locale
+      (product content itself is already localised in Sanity)
 - [ ] Set `NEXT_PUBLIC_BASE_URL=https://mirgalab.com` in the production
       environment — `canonical` / `hreflang` tags are built from it
 - [ ] `sitemap.ts` listing both locales per route (hreflang is in place; a
