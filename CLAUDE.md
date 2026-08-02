@@ -214,6 +214,7 @@ app/
   api/                         # outside [locale], excluded in proxy.ts
     checkout/route.ts          # POST: builds Stripe Checkout Session (price from Sanity)
     webhook/route.ts           # (planned) verify signature, flip ready->false, send email
+    revalidate/route.ts        # POST: Sanity webhook -> revalidateTag(PRODUCTS_TAG)
   actions/
     cart.ts                    # 'use server' — resolveCartAction(lines, locale)
   studio/
@@ -374,10 +375,12 @@ STRIPE_SECRET_KEY=           # sk_test_... in dev
 STRIPE_WEBHOOK_SECRET=       # from `stripe listen` locally / Dashboard in prod
 RESEND_API_KEY=
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
+SANITY_REVALIDATE_SECRET=    # shared secret for the Studio -> /api/revalidate webhook
 ```
 
-Never expose `SANITY_WRITE_TOKEN`, `STRIPE_SECRET_KEY`, or `STRIPE_WEBHOOK_SECRET`
-to the client. Only `NEXT_PUBLIC_*` vars may reach the browser.
+Never expose `SANITY_WRITE_TOKEN`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, or
+`SANITY_REVALIDATE_SECRET` to the client. Only `NEXT_PUBLIC_*` vars may reach the
+browser.
 
 ## Commands
 
@@ -430,9 +433,10 @@ stripe trigger checkout.session.completed   # send a test event
 - [x] Zustand cart (+ localStorage persistence) — `store/cart.ts`, resolved for
       display through `app/actions/cart.ts`
 - [x] Stripe hosted Checkout (`/api/checkout`) + success / cancel pages
+- [x] Sanity → revalidateTag webhook for instant content updates
+      (`/api/revalidate`; still needs to be wired up as a webhook in Studio,
+      with `SANITY_REVALIDATE_SECRET` set to match)
 - [ ] Resend domain verification (sender: uzsakymai@mirga.lab)
-- [ ] Sanity → revalidateTag webhook for instant content updates
-      (reads are already tagged with `PRODUCTS_TAG`; only the route is missing)
 - [ ] Real per-product photography — the seeded rings share a pool of 8 photos
 - [ ] `/api/webhook` is the remaining half of the payment flow: verify the
       signature off the raw body, flip `ready -> false` for consumed units, send

@@ -43,8 +43,8 @@ export function getWriteClient() {
   })
 }
 
-/** Cache tag for every product/material read. The planned Sanity webhook
- *  revalidates this one tag to push content live instantly. */
+/** Cache tag for every product/material read. `/api/revalidate` (the Sanity
+ *  webhook) revalidates this one tag to push content live instantly. */
 export const PRODUCTS_TAG = 'products'
 
 /**
