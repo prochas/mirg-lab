@@ -6,7 +6,8 @@ import { getPathname } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { MAX_QTY } from "@/lib/cart";
 import { getFulfillment } from "@/lib/fulfillment";
-import { SHIPPING_COUNTRIES, shippingOptionsFor } from "@/lib/shipping";
+import { CARRIER_META, type Carrier } from "@/lib/lockers";
+import { LOCKER_COUNTRIES, SHIPPING_COUNTRIES, shippingOptionsFor } from "@/lib/shipping";
 import { getStripe } from "@/lib/stripe";
 import { sanityFetchFresh } from "@/sanity/lib/client";
 import { urlFor } from "@/sanity/lib/image";
@@ -59,6 +60,49 @@ type CheckoutProduct = {
 
 type ValidLine = { id: string; size: string; qty: number };
 
+type Delivery =
+  | { method: "home" }
+  | {
+      method: "locker";
+      carrier: Carrier;
+      lockerId: string;
+      lockerName: string;
+      lockerAddress: string;
+    };
+
+/**
+ * The customer picks home vs. parcel locker — and, for locker, the exact
+ * terminal — client-side in `CartDrawer` (via `LockerPickerModal`), before
+ * this route ever runs. This just shape-checks what came back; it never
+ * trusts a client-supplied price or lets a malformed value fall through to
+ * Stripe.
+ */
+function parseDelivery(raw: unknown): Delivery | null {
+  if (typeof raw !== "object" || raw === null) return { method: "home" };
+  const { method, carrier, lockerId, lockerName, lockerAddress } = raw as Record<
+    string,
+    unknown
+  >;
+
+  if (method === "home" || method === undefined) return { method: "home" };
+  if (method !== "locker") return null;
+
+  if (carrier !== "omniva" && carrier !== "venipak") return null;
+
+  // Caps sized so `${carrier}: ${lockerName} — ${lockerAddress}` can never
+  // exceed Stripe's 500-char metadata-value limit once it lands in session
+  // metadata.
+  if (
+    typeof lockerId !== "string" || !lockerId || lockerId.length > 50 ||
+    typeof lockerName !== "string" || !lockerName || lockerName.length > 140 ||
+    typeof lockerAddress !== "string" || !lockerAddress || lockerAddress.length > 300
+  ) {
+    return null;
+  }
+
+  return { method: "locker", carrier, lockerId, lockerName, lockerAddress };
+}
+
 function fail(code: string, status = 400) {
   return NextResponse.json({ error: code }, { status });
 }
@@ -104,7 +148,10 @@ export async function POST(req: Request) {
     return fail("bad_request");
   }
 
-  const { items, locale: rawLocale } = (body ?? {}) as Record<string, unknown>;
+  const { items, locale: rawLocale, delivery: rawDelivery } = (body ?? {}) as Record<
+    string,
+    unknown
+  >;
 
   const locale: Locale = hasLocale(routing.locales, rawLocale)
     ? rawLocale
@@ -112,6 +159,9 @@ export async function POST(req: Request) {
 
   const lines = parseLines(items);
   if (!lines) return fail("invalid_cart");
+
+  const delivery = parseDelivery(rawDelivery);
+  if (!delivery) return fail("invalid_delivery");
 
   // ── 2. Load the real products, uncached ───────────────────────────────────
   const products = await sanityFetchFresh<CheckoutProduct[]>(
@@ -221,14 +271,25 @@ export async function POST(req: Request) {
       // Guest checkout — Stripe collects the email, we store no accounts.
       customer_creation: "if_required",
       billing_address_collection: "auto",
+      // Locker delivery only ever ships within Lithuania — that's the only
+      // country the picker (lib/lockers.ts) has terminals for.
       shipping_address_collection: {
-        allowed_countries: [...SHIPPING_COUNTRIES],
+        allowed_countries:
+          delivery.method === "locker"
+            ? [...LOCKER_COUNTRIES]
+            : [...SHIPPING_COUNTRIES],
       },
       // Free above the threshold, decided from the Sanity subtotal above.
-      shipping_options: shippingOptionsFor(subtotalEur, {
-        domestic: tCheckout("shipping.domestic"),
-        eu: tCheckout("shipping.eu"),
-        free: tCheckout("shipping.free"),
+      // The method itself was already chosen client-side (see CartDrawer's
+      // locker picker) — only the zone (domestic/EU) is still a Stripe-side
+      // choice for "home", since the address isn't known until Checkout.
+      shipping_options: shippingOptionsFor(subtotalEur, delivery.method, {
+        domesticHome: tCheckout("shipping.domesticHome"),
+        euHome: tCheckout("shipping.euHome"),
+        locker: tCheckout("shipping.locker", {
+          carrier:
+            delivery.method === "locker" ? CARRIER_META[delivery.carrier].label : "",
+        }),
       }),
       // See the TAX_ENABLED comment above — off until Stripe Tax is actually
       // configured for this account. shipping_address_collection above
@@ -237,7 +298,18 @@ export async function POST(req: Request) {
       locale,
       success_url: `${absoluteUrl("/success")}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: absoluteUrl("/cancel"),
-      metadata: { items: itemsMeta, locale },
+      metadata: {
+        items: itemsMeta,
+        locale,
+        // Reaches the Dashboard, the webhook and the confirmation email —
+        // the exact terminal the customer picked in the map, not a
+        // free-typed guess.
+        ...(delivery.method === "locker"
+          ? {
+              locker: `${CARRIER_META[delivery.carrier].label}: ${delivery.lockerName} — ${delivery.lockerAddress}`,
+            }
+          : {}),
+      },
     });
 
     if (!session.url) return fail("stripe_error", 502);

@@ -47,9 +47,9 @@
   "checkout": {
     "sizeLabel": "Dydis {size}",
     "shipping": {
-      "domestic": "Lietuva",
-      "eu": "Kitos ES šalys",
-      "free": "Nemokamas pristatymas"
+      "domesticHome": "Lietuva — pristatymas į namus",
+      "euHome": "Kitos ES šalys — pristatymas į namus",
+      "locker": "Paštomatas ({carrier})"
     }
   },
   "success": {
@@ -330,6 +330,20 @@
     }
   },
 
+  "locker": {
+    "dialogLabel": "Pasirinkite paštomatą",
+    "eyebrow": "Paštomatas",
+    "title": "Pasirinkite artimiausią paštomatą",
+    "close": "Uždaryti",
+    "searchPlaceholder": "Ieškoti pagal miestą ar gatvę",
+    "locating": "Nustatoma jūsų vieta…",
+    "loadError": "Nepavyko įkelti paštomatų sąrašo. Bandykite dar kartą arba pasirinkite pristatymą į namus.",
+    "noResults": "Pagal paiešką paštomatų nerasta.",
+    "truncatedNote": "Rodoma {shown} artimiausių iš {total} — susiaurinkite paiešką.",
+    "selectPrompt": "Pasirinkite paštomatą",
+    "selectButton": "Naudoti {name}"
+  },
+
   "cookieNotice": {
     "label": "Slapukų pranešimas",
     "text": "Naudojame tik būtiną naršyklės atmintį krepšeliui išsaugoti ir privatumą tausojančią, slapukų nenaudojančią lankomumo analitiką.",
@@ -360,6 +374,14 @@
     "shippingCalculated": "Skaičiuojama",
     "total": "Iš viso",
     "taxNote": "Mokesčiai apskaičiuojami atsiskaitant",
+    "delivery": {
+      "title": "Pristatymo būdas",
+      "home": "Pristatymas į namus",
+      "locker": "Paštomatas",
+      "chooseLocker": "Pasirinkti paštomatą",
+      "changeLocker": "Keisti",
+      "lockerRequired": "Norėdami tęsti, pasirinkite paštomatą."
+    },
     "checkout": "Apmokėti — {total}",
     "checkoutPending": "Nukreipiame į apmokėjimą…",
     "error": {
@@ -369,6 +391,27 @@
     },
     "continue": "Tęsti apsipirkimą",
     "secure": "Saugus mokėjimas per Stripe"
+  },
+
+  "email": {
+    "subject": "Užsakymo patvirtinimas {reference} — mirga.lab",
+    "title": "Dėkojame už užsakymą",
+    "body": "Gavome jūsų mokėjimą ir pradedame darbą. Jūsų užsakymas:",
+    "viewOrderButton": "Peržiūrėti užsakymą",
+    "orderLabel": "Užsakymo nr.",
+    "summaryTitle": "Užsakymo santrauka",
+    "lockerLabel": "Paštomatas",
+    "qtyLabel": "Kiekis {qty}",
+    "subtotalLabel": "Tarpinė suma",
+    "shippingCostLabel": "Pristatymas",
+    "freeLabel": "Nemokamas",
+    "discountLabel": "Nuolaida",
+    "totalLabel": "Iš viso",
+    "customerInfoTitle": "Užsakymo informacija",
+    "shippingAddressLabel": "Pristatymo adresas",
+    "billingAddressLabel": "Sąskaitos adresas",
+    "paymentLabel": "Mokėjimas",
+    "help": "Klausimai apie užsakymą? Rašykite"
   },
 
   "fulfillment": {

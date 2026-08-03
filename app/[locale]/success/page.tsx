@@ -186,10 +186,10 @@ export default async function SuccessPage({
             <span className="text-[13px] text-[#7a7a76]">
               {t("help")}{" "}
               <a
-                href="mailto:uzsakymai@mirga.lab"
+                href="mailto:info@mirgalab.com"
                 className="text-[#111] underline underline-offset-4 transition-colors duration-300 hover:text-[#ff4d3d]"
               >
-                uzsakymai@mirga.lab
+                info@mirgalab.com
               </a>
             </span>
           </div>

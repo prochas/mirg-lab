@@ -24,8 +24,8 @@ export default function Contacts({
     {
       key: "email",
       label: t("rows.email"),
-      value: "uzsakymai@mirga.lab",
-      href: "mailto:uzsakymai@mirga.lab",
+      value: "info@mirgalab.com",
+      href: "mailto:info@mirgalab.com",
       sub: null,
     },
     {

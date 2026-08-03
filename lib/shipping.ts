@@ -15,22 +15,40 @@ export const SHIPPING_COUNTRIES = [
   "PL", "PT", "RO", "SK", "SI", "ES", "SE",
 ] as const;
 
-/** Paid rates, applied only below the free-shipping threshold. */
+/**
+ * Parcel locker delivery only ever goes through this one country — the
+ * picker (`lib/lockers.ts`) only ever offers Lithuanian Omniva terminals, so
+ * there's nothing to ship a locker order to outside Lithuania.
+ */
+export const LOCKER_COUNTRIES = ["LT"] as const;
+
+/**
+ * Paid rates, applied only below the free-shipping threshold. `locker` is
+ * cheaper than `home` — a parcel locker costs the carrier less to serve than
+ * a door delivery.
+ */
 export const SHIPPING_RATES = {
-  domestic: { cents: 390, days: { min: 1, max: 3 } },
-  eu: { cents: 990, days: { min: 3, max: 7 } },
+  domestic: {
+    home: { cents: 390, days: { min: 1, max: 3 } },
+    locker: { cents: 290, days: { min: 1, max: 3 } },
+  },
+  eu: {
+    home: { cents: 990, days: { min: 3, max: 7 } },
+  },
 } as const;
 
-/** Delivery estimate shown on the free option. */
+/** Delivery estimate shown on the free options. */
 const FREE_DAYS = { min: 1, max: 7 };
 
+export type DeliveryMethod = "home" | "locker";
+
 type ShippingOptionLabels = {
-  /** e.g. "Lietuva" */
-  domestic: string;
-  /** e.g. "Kitos ES šalys" */
-  eu: string;
-  /** e.g. "Nemokamas siuntimas" */
-  free: string;
+  /** e.g. "Pristatymas į namus (Lietuva)" — only used for method "home". */
+  domesticHome: string;
+  /** e.g. "Pristatymas į namus (kitos ES šalys)" — only used for method "home". */
+  euHome: string;
+  /** e.g. "Paštomatas (Omniva)" — only used for method "locker". */
+  locker: string;
 };
 
 function rate(
@@ -57,29 +75,44 @@ function rate(
 }
 
 /**
- * The shipping choices offered for a given order value.
+ * The shipping choice(s) offered for a given order value and delivery method.
  *
  * `subtotalEur` **must** be computed from Sanity prices on the server. Deciding
  * free shipping from a client-supplied total would let anyone claim it.
  *
- * Above the threshold this returns a single free option, so there is nothing to
- * choose and nothing to get wrong. Below it, both zone rates are offered:
- * Stripe fixes `shipping_options` when the session is created, so they cannot
- * react to the address the customer subsequently types in. The zone is
- * therefore the customer's selection, and the Dashboard shows the address next
- * to the rate they picked. (A future upgrade would collect the country before
- * creating the session, or move to Stripe's dynamic shipping.)
+ * The delivery *method* (home vs. locker) is decided client-side before the
+ * Checkout Session is even created (see the locker picker in `CartDrawer`),
+ * so unlike the zone below, it never needs to be a Stripe-side choice.
+ *
+ * For `method: "locker"` there is exactly one rate — Lithuania only, since
+ * that's the only country the picker offers terminals for. For `method:
+ * "home"` the *zone* (domestic vs. EU) is still the customer's choice at
+ * Stripe: `shipping_options` is fixed at session creation, so it can't react
+ * to the address typed in afterwards. (A future upgrade would collect the
+ * country before creating the session, or move to Stripe's dynamic shipping.)
  */
 export function shippingOptionsFor(
   subtotalEur: number,
+  method: DeliveryMethod,
   labels: ShippingOptionLabels,
 ) {
-  if (subtotalEur >= FREE_SHIPPING_FROM) {
-    return [rate(labels.free, 0, FREE_DAYS)];
+  const free = subtotalEur >= FREE_SHIPPING_FROM;
+
+  if (method === "locker") {
+    const { cents, days } = SHIPPING_RATES.domestic.locker;
+    return [rate(labels.locker, free ? 0 : cents, free ? FREE_DAYS : days)];
   }
 
   return [
-    rate(labels.domestic, SHIPPING_RATES.domestic.cents, SHIPPING_RATES.domestic.days),
-    rate(labels.eu, SHIPPING_RATES.eu.cents, SHIPPING_RATES.eu.days),
+    rate(
+      labels.domesticHome,
+      free ? 0 : SHIPPING_RATES.domestic.home.cents,
+      free ? FREE_DAYS : SHIPPING_RATES.domestic.home.days,
+    ),
+    rate(
+      labels.euHome,
+      free ? 0 : SHIPPING_RATES.eu.home.cents,
+      free ? FREE_DAYS : SHIPPING_RATES.eu.home.days,
+    ),
   ];
 }

@@ -47,9 +47,9 @@
   "checkout": {
     "sizeLabel": "Size {size}",
     "shipping": {
-      "domestic": "Lithuania",
-      "eu": "Rest of the EU",
-      "free": "Free shipping"
+      "domesticHome": "Lithuania — home delivery",
+      "euHome": "Rest of the EU — home delivery",
+      "locker": "Parcel locker ({carrier})"
     }
   },
   "success": {
@@ -330,6 +330,20 @@
     }
   },
 
+  "locker": {
+    "dialogLabel": "Choose a parcel locker",
+    "eyebrow": "Parcel locker",
+    "title": "Choose the nearest locker",
+    "close": "Close",
+    "searchPlaceholder": "Search by city or street",
+    "locating": "Finding your location…",
+    "loadError": "Couldn't load the locker list. Please try again, or choose home delivery instead.",
+    "noResults": "No lockers match your search.",
+    "truncatedNote": "Showing the nearest {shown} of {total} — search to narrow it down.",
+    "selectPrompt": "Select a locker",
+    "selectButton": "Use {name}"
+  },
+
   "cookieNotice": {
     "label": "Cookie notice",
     "text": "We use only essential browser storage to keep your cart, plus privacy-friendly, cookie-free visit analytics.",
@@ -360,6 +374,14 @@
     "shippingCalculated": "Calculated",
     "total": "Total",
     "taxNote": "Taxes calculated at checkout",
+    "delivery": {
+      "title": "Delivery method",
+      "home": "Home delivery",
+      "locker": "Parcel locker",
+      "chooseLocker": "Choose a locker",
+      "changeLocker": "Change",
+      "lockerRequired": "Please choose a parcel locker to continue."
+    },
     "checkout": "Checkout — {total}",
     "checkoutPending": "Redirecting to payment…",
     "error": {
@@ -369,6 +391,27 @@
     },
     "continue": "Continue shopping",
     "secure": "Secure payment via Stripe"
+  },
+
+  "email": {
+    "subject": "Order confirmation {reference} — mirga.lab",
+    "title": "Thank you for your order",
+    "body": "We've received your payment and we're starting work on it. Here's what you ordered:",
+    "viewOrderButton": "View your order",
+    "orderLabel": "Order no.",
+    "summaryTitle": "Order summary",
+    "lockerLabel": "Parcel locker",
+    "qtyLabel": "Qty {qty}",
+    "subtotalLabel": "Subtotal",
+    "shippingCostLabel": "Shipping",
+    "freeLabel": "Free",
+    "discountLabel": "Discount",
+    "totalLabel": "Total",
+    "customerInfoTitle": "Order details",
+    "shippingAddressLabel": "Shipping address",
+    "billingAddressLabel": "Billing address",
+    "paymentLabel": "Payment",
+    "help": "Questions about your order? Write to"
   },
 
   "fulfillment": {

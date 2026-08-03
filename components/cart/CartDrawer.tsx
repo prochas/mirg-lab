@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { useCartUI } from "./CartUIProvider";
 import { lockScroll, unlockScroll } from "@/components/LenisProvider";
+import LockerPickerModal from "@/components/LockerPickerModal";
 import { formatPrice } from "@/lib/format";
 import {
   cartCount,
@@ -15,8 +16,11 @@ import {
   FREE_SHIPPING_FROM,
   MAX_QTY,
 } from "@/lib/cart";
+import { CARRIER_META, type Locker } from "@/lib/lockers";
 import { resolveCartAction } from "@/app/actions/cart";
 import { useCartHydrated, useCartStore } from "@/store/cart";
+
+type DeliveryMethod = "home" | "locker";
 
 const payments = ["VISA", "MASTERCARD", "AMEX", "PAYPAL"];
 
@@ -86,6 +90,17 @@ export default function CartDrawer() {
   >(null);
   const [redirecting, setRedirecting] = useState(false);
 
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("home");
+  const [selectedLocker, setSelectedLocker] = useState<Locker | null>(null);
+  const [lockerModalOpen, setLockerModalOpen] = useState(false);
+  const [lockerRequired, setLockerRequired] = useState(false);
+
+  function handleLockerSelect(locker: Locker) {
+    setSelectedLocker(locker);
+    setLockerModalOpen(false);
+    setLockerRequired(false);
+  }
+
   // After `window.location.assign` to Stripe, pressing Back restores this page
   // from the browser's bfcache instead of re-running the module from scratch —
   // `redirecting` is still `true` from before the navigation, so the button
@@ -111,14 +126,34 @@ export default function CartDrawer() {
    */
   async function startCheckout() {
     if (redirecting || lines.length === 0) return;
+
+    // Same idea as the price/size validation on the server: the customer
+    // can't proceed to Stripe with "parcel locker" chosen and no locker
+    // actually picked — there'd be nowhere to fulfil the order to.
+    if (deliveryMethod === "locker" && !selectedLocker) {
+      setLockerRequired(true);
+      return;
+    }
+
     setRedirecting(true);
     setCheckoutError(null);
+
+    const delivery =
+      deliveryMethod === "locker" && selectedLocker
+        ? {
+            method: "locker" as const,
+            carrier: selectedLocker.carrier,
+            lockerId: selectedLocker.id,
+            lockerName: selectedLocker.name,
+            lockerAddress: selectedLocker.address,
+          }
+        : { method: "home" as const };
 
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: lines, locale }),
+        body: JSON.stringify({ items: lines, locale, delivery }),
       });
       const data = (await res.json().catch(() => null)) as {
         url?: string;
@@ -415,6 +450,87 @@ export default function CartDrawer() {
                 {t("taxNote")}
               </p>
 
+              {/* ── Delivery method ── */}
+              <div className="mt-4 border-t border-[#111]/10 pt-4">
+                <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#7a7a76]">
+                  {t("delivery.title")}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    aria-pressed={deliveryMethod === "home"}
+                    onClick={() => setDeliveryMethod("home")}
+                    className={`flex-1 rounded-[8px] border px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.06em] transition-colors duration-200 ${
+                      deliveryMethod === "home"
+                        ? "border-[#111] bg-[#111] text-white"
+                        : "border-[#111]/20 text-[#111] hover:border-[#111]"
+                    }`}
+                  >
+                    {t("delivery.home")}
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={deliveryMethod === "locker"}
+                    onClick={() => setDeliveryMethod("locker")}
+                    className={`flex-1 rounded-[8px] border px-3 py-2.5 text-[12px] font-semibold uppercase tracking-[0.06em] transition-colors duration-200 ${
+                      deliveryMethod === "locker"
+                        ? "border-[#111] bg-[#111] text-white"
+                        : "border-[#111]/20 text-[#111] hover:border-[#111]"
+                    }`}
+                  >
+                    {t("delivery.locker")}
+                  </button>
+                </div>
+
+                {deliveryMethod === "locker" && (
+                  <div className="mt-2.5">
+                    {selectedLocker ? (
+                      <div className="flex items-center justify-between gap-3 rounded-[10px] bg-[#111]/[0.05] px-3.5 py-2.5">
+                        <div className="min-w-0">
+                          {/* Logo on its own row, top-left — same pattern as
+                              the list rows inside LockerPickerModal, not the
+                              inline colored-letter badge this used to be. */}
+                          <div className="mb-1 flex h-6 w-16 items-center justify-start">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={CARRIER_META[selectedLocker.carrier].logo}
+                              alt={CARRIER_META[selectedLocker.carrier].label}
+                              className="h-full w-full object-contain object-left"
+                            />
+                          </div>
+                          <div className="truncate text-[13px] font-semibold text-[#111]">
+                            {selectedLocker.name}
+                          </div>
+                          <div className="truncate text-[12px] text-[#7a7a76]">
+                            {selectedLocker.address}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setLockerModalOpen(true)}
+                          className="flex-none text-[12px] font-semibold uppercase tracking-[0.06em] text-[#111] underline underline-offset-2 transition-colors duration-300 hover:text-[#ff4d3d]"
+                        >
+                          {t("delivery.changeLocker")}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setLockerModalOpen(true)}
+                        className="w-full rounded-[10px] border border-[#111]/20 py-2.5 text-[13px] font-semibold text-[#111] transition-colors duration-300 hover:border-[#111]"
+                      >
+                        {t("delivery.chooseLocker")}
+                      </button>
+                    )}
+                    {lockerRequired && (
+                      <p className="mt-2 text-[12px] text-[#b3271a]">
+                        {t("delivery.lockerRequired")}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {checkoutError && (
                 <div
                   role="alert"
@@ -509,6 +625,12 @@ export default function CartDrawer() {
           </>
         )}
       </aside>
+
+      <LockerPickerModal
+        open={lockerModalOpen}
+        onClose={() => setLockerModalOpen(false)}
+        onSelect={handleLockerSelect}
+      />
     </>
   );
 }

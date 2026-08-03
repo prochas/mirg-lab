@@ -22,6 +22,8 @@ mostly in the EU (Lithuania first).
   Studio is embedded in the app at `/studio`.
 - **Stripe** — payments via **hosted Checkout** (not the custom Payment Element).
 - **Resend** — order confirmation emails.
+- **Leaflet** — the parcel-locker map picker (see "Shipping"). No API key —
+  OpenStreetMap tiles + Omniva's own public terminal feed.
 
 No database and no auth framework — see "Key architecture decisions" below.
 
@@ -213,8 +215,9 @@ app/
     cancel/page.tsx            # nothing charged, cart intact, reopens the drawer
   api/                         # outside [locale], excluded in proxy.ts
     checkout/route.ts          # POST: builds Stripe Checkout Session (price from Sanity)
-    webhook/route.ts           # (planned) verify signature, flip ready->false, send email
+    webhook/route.ts           # verify signature, flip ready->false, send email
     revalidate/route.ts        # POST: Sanity webhook -> revalidateTag(PRODUCTS_TAG)
+    lockers/route.ts           # GET: proxies Omniva's public terminal feed (see "Shipping")
   actions/
     cart.ts                    # 'use server' — resolveCartAction(lines, locale)
   studio/
@@ -231,7 +234,8 @@ proxy.ts                       # next-intl routing middleware (Next 16 conventio
 store/
   cart.ts                      # Zustand cart, persisted to localStorage
 lib/
-  shipping.ts                  # EU country list + zone rates (in cents)
+  shipping.ts                  # EU country list + method/zone rates (in cents)
+  lockers.ts                   # Omniva terminal feed fetch/filter + distanceKm()
   stripe.ts                    # lazy server-only Stripe singleton
   rings.ts                     # Sanity-backed catalog — async getRings(locale) etc.
   about.ts                     # about-page content, Localized<T> in TypeScript
@@ -241,7 +245,7 @@ lib/
   fulfillment.ts               # getFulfillment() — the shared business logic
   format.ts                    # formatPrice(amount, locale)
   scroll.ts                    # useScrollEffect for the scroll-driven sections
-  email.ts                     # (planned) Resend order confirmation
+  email.ts                     # sendOrderConfirmation() — Resend order confirmation
 sanity/
   env.ts                       # projectId / dataset / apiVersion (throws if unset)
   lib/client.ts                # read client, getWriteClient(), sanityFetch(), PRODUCTS_TAG
@@ -351,19 +355,75 @@ appear in the shop.
 ## Shipping
 
 Rates live in `lib/shipping.ts` as constants in **euro cents**, alongside the
-allowed-country list (all 27 EU states).
+allowed-country list (all 27 EU states). `shippingOptionsFor(subtotalEur,
+method, labels)` takes the delivery **method** ("home" | "locker", from
+`DeliveryMethod`) as a parameter — unlike the zone below, the method is decided
+client-side before the Checkout Session exists, so it never needs to be a
+Stripe-side choice.
 
-Above `FREE_SHIPPING_FROM` (€100, from `lib/cart.ts`) the session gets a single
-free option, so there is nothing to choose. Below it, both zone rates are
-offered — Lithuania €3.90, rest of the EU €9.90.
+Above `FREE_SHIPPING_FROM` (€100, from `lib/cart.ts`) the matching option(s)
+are priced at €0 rather than disappearing — home delivery still offers both
+zone rates, just free, and locker delivery still offers its one rate, free.
 
-The zone is the **customer's selection**, not something the server derives:
-Stripe fixes `shipping_options` when the session is created, so they cannot
-react to the address typed in afterwards. The Dashboard shows the delivery
-address next to the rate they picked, so a mismatch is visible. Upgrading means
-either collecting the country before creating the session or moving to Stripe's
-dynamic shipping — don't "fix" it by trusting a client-sent country, which is
-exactly how you get €3.90 shipping to Portugal.
+For `method: "home"`, the **zone** (domestic vs. EU) is still the **customer's
+selection at Stripe**, not something the server derives: `shipping_options` is
+fixed when the session is created, so it can't react to the address typed in
+afterwards. The Dashboard shows the delivery address next to the rate they
+picked, so a mismatch is visible. Upgrading means either collecting the country
+before creating the session or moving to Stripe's dynamic shipping — don't
+"fix" it by trusting a client-sent country, which is exactly how you get €3.90
+shipping to Portugal.
+
+For `method: "locker"` there's no zone choice — `shippingOptionsFor` returns
+exactly one rate, and `shipping_address_collection.allowed_countries` in
+`/api/checkout` is narrowed to `LOCKER_COUNTRIES` (`["LT"]`), because the
+locker picker only ever offers Lithuanian terminals.
+
+### Parcel locker delivery
+
+The customer picks **home delivery** or **parcel locker** in `CartDrawer`
+before checkout even starts — this is client-side, unlike the zone above,
+because Stripe Checkout has no way to make one choice's presence depend on
+another. Picking "locker" opens `LockerPickerModal` (`components/`), a
+Leaflet map + searchable list of real Omniva **and** Venipak terminals, sorted
+by distance once the browser grants geolocation (denial just leaves the list
+unsorted and the map centred on Vilnius — never blocking).
+
+- `lib/lockers.ts` fetches and filters each carrier's own public,
+  **unauthenticated** terminal feed down to Lithuania — Omniva's
+  (`https://www.omniva.ee/locations.json`, all three Baltic states, `TYPE ==
+  "0"` for terminals) and Venipak's (`https://go.venipak.lt/ws/get_pickup_points`,
+  same three states, `type == 3` for self-service lockers — `type == 1` is a
+  staffed pickup point, excluded). Both are public data feeds, not business
+  APIs — no credentials, no registration. `getLithuanianLockers()` fetches
+  both with `Promise.allSettled` and merges them; if one carrier's feed is
+  down, the other's lockers are still returned rather than failing the whole
+  picker. Ids are prefixed per carrier (`omniva-…` / `venipak-…`) since the
+  two feeds' raw ids aren't drawn from the same namespace.
+- `app/api/lockers/route.ts` proxies both feeds server-side (neither sends
+  CORS headers, so the browser can't fetch them directly) and caches the
+  result for a day — terminal locations barely change.
+- `CARRIER_META` (`lib/lockers.ts`) is the single source of truth for each
+  carrier's picker colour/letter/label, shared by `LockerPickerModal` and
+  `CartDrawer` so they can never disagree. These are **not** the carriers'
+  actual logos — hotlinking a competitor's brand image would be a fragile
+  external dependency and a trademark question worth avoiding; a coloured
+  letter badge follows the same pattern already used for payment brands in
+  `CartDrawer` (plain "VISA"/"MASTERCARD" text, not card network logos).
+- The chosen terminal (`{ carrier, lockerId, lockerName, lockerAddress }`)
+  travels to `/api/checkout` in the request body alongside `delivery.method`,
+  gets shape-checked there the same way cart lines are (including that
+  `carrier` is exactly `"omniva"` or `"venipak"`), and lands in
+  `session.metadata.locker` as `"<Carrier>: <name> — <address>"` — which is
+  what the webhook reads to put the exact terminal (not a free-typed guess)
+  into the confirmation email.
+
+**Only Omniva and Venipak have a real picker.** LP Express and DPD are not
+offered — building four separate map integrations for an MVP wasn't worth it;
+these two were picked because their terminal feeds are public and keyless,
+unlike the business-account APIs the other two require. A customer who
+specifically wants a different network has to be handled manually (email),
+which is an accepted gap, not an oversight.
 
 ## Taxes (Stripe Tax / EU VAT)
 
@@ -470,12 +530,19 @@ stripe trigger checkout.session.completed   # send a test event
 - [x] Sanity → revalidateTag webhook for instant content updates
       (`/api/revalidate`; still needs to be wired up as a webhook in Studio,
       with `SANITY_REVALIDATE_SECRET` set to match)
-- [ ] Resend domain verification (sender: uzsakymai@mirga.lab)
+- [ ] Resend domain verification (sender: info@mirgalab.com) — `lib/email.ts`
+      sends from this address already; sends will fail until the domain is
+      verified in the Resend dashboard.
 - [ ] Real per-product photography — the seeded rings share a pool of 8 photos
-- [ ] `/api/webhook` is the remaining half of the payment flow: verify the
-      signature off the raw body, flip `ready -> false` for consumed units, send
-      the Resend confirmation. Until it exists, a paid order does not update
-      `ready` and sends no email — the Stripe Dashboard is the only record.
+- [x] `/api/webhook` — verifies the signature off the raw body, flips
+      `ready -> false` for lines that consumed an on-hand unit (matched via
+      `price_data.product_data.metadata.{productId,size}` set in
+      `/api/checkout`), and sends the Resend confirmation via
+      `sendOrderConfirmation()` in `lib/email.ts`. Line item name/price/blurb
+      in the email come from the Stripe line items themselves (`price.product`,
+      expanded), not re-fetched from Sanity, so the email always matches what
+      was actually charged. No idempotency guard on the email send — see the
+      "No idempotency" trade-off below.
 - [x] Legal pages (terms, privacy, returns) — `lib/legal.ts` +
       `app/[locale]/terms|privacy|returns/page.tsx`. Seller identity
       (`SELLER.name`/`SELLER.id` in `lib/legal.ts`) is still a bracketed
@@ -498,8 +565,11 @@ stripe trigger checkout.session.completed   # send a test event
       has an origin address + tax registration configured and the seller's
       actual VAT/OSS registration status is decided — flipping the flag
       without that breaks every checkout.
-- [ ] Translate the Stripe line-item descriptions + Resend email per locale
-      (product content itself is already localised in Sanity)
+- [x] Translate the Stripe line-item descriptions + Resend email per locale
+      (product content itself is already localised in Sanity) — line items
+      were already localized via `getFulfillment`/`tCheckout` in `/api/checkout`;
+      the email now goes through the `email` namespace in `messages/*.json`,
+      picked by `session.metadata.locale`.
 - [ ] Set `NEXT_PUBLIC_BASE_URL=https://mirgalab.com` in the production
       environment — `canonical` / `hreflang` tags are built from it
 - [ ] `sitemap.ts` listing both locales per route (hreflang is in place; a

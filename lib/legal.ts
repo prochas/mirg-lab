@@ -29,14 +29,14 @@ const SELLER = {
     name: "[Vardas Pavardė / įmonės pavadinimas]",
     id: "[individualios veiklos pažymos Nr. / įmonės kodas]",
     address: "Aušros Vartų g. 12, Vilnius, Lietuva",
-    email: "uzsakymai@mirga.lab",
+    email: "info@mirgalab.com",
     phone: "+370 600 00000",
   },
   en: {
     name: "[Full name / company name]",
     id: "[individual activity certificate No. / company code]",
     address: "Aušros Vartų g. 12, Vilnius, Lithuania",
-    email: "uzsakymai@mirga.lab",
+    email: "info@mirgalab.com",
     phone: "+370 600 00000",
   },
 } as const;

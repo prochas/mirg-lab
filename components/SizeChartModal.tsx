@@ -174,7 +174,7 @@ export default function SizeChartModal({
         <p className="mt-2 text-[13px] leading-[1.5] text-[#7a7a76]">
           {t("doubt.prefix")}
           <a
-            href="mailto:uzsakymai@mirga.lab"
+            href="mailto:info@mirgalab.com"
             className="font-semibold text-[#111] underline underline-offset-2 transition-colors duration-300 hover:text-[#ff4d3d]"
           >
             {t("doubt.link")}

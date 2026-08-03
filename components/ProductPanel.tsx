@@ -122,7 +122,7 @@ export default function ProductPanel({ ring }: { ring: RingProduct }) {
         </button>
 
         <a
-          href="mailto:uzsakymai@mirga.lab"
+          href="mailto:info@mirgalab.com"
           className="mt-3 block text-center text-[13px] text-[#7a7a76] no-underline transition-colors duration-300 hover:text-[#111]"
         >
           {t("customNote")}

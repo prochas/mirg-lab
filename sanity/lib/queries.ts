@@ -84,3 +84,16 @@ export const productsByIdsQuery = defineQuery(`
     "imageRef": images[defined(asset)][0].asset._ref
   }
 `)
+
+/**
+ * `ready`/`readySize` only — what the webhook reads right before deciding
+ * whether a line it just sold should flip `ready -> false`. Read through the
+ * write client (no CDN), so the value is current at the moment of the sale.
+ */
+export const productsReadyQuery = defineQuery(`
+  *[_type == "product" && _id in $ids] {
+    "id": _id,
+    ready,
+    readySize
+  }
+`)

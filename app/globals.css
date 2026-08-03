@@ -155,3 +155,36 @@ body::after {
 #noise-logo svg {
   stroke: color-mix(in oklab, var(--ink) 5%, transparent);
 }
+
+/*
+  LockerPickerModal (react-modal) fade transition.
+  react-modal toggles these as plain class names alongside its `base` class
+  (see the `className`/`overlayClassName` objects in LockerPickerModal.tsx) —
+  it does not manage inline opacity itself, so the transition lives here.
+*/
+.locker-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.locker-modal-overlay--after-open {
+  opacity: 1;
+}
+
+.locker-modal-overlay--before-close {
+  opacity: 0;
+}
+
+.locker-modal-content {
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.locker-modal-content--after-open {
+  opacity: 1;
+}
+
+.locker-modal-content--before-close {
+  opacity: 0;
+}
